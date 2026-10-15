@@ -163,9 +163,13 @@ Why a skill and not another role? The pipeline is a procedure for the main conve
 
 ## What Gets Built
 
-- `.claude/skills/<pipeline-name>/SKILL.md`: the full assembly line with handoffs and the FAIL limit, started with `/<pipeline-name> <task>`
-- `harness/handoffs/.gitkeep`: the folder the pipeline writes handoff files into
-- Each role file's Output section, updated so the role ends with the handoff note the next step expects
+*(Adapted for the portable-method layout — see the main SKILL.md of `construir` for the full target structure.)*
+
+- `metodo/skills/<pipeline-name>.md`: the full assembly line with handoffs and the FAIL limit — this is the portable method document, independent of Claude Code. Mandatory steps (intake, deterministic checks, independent review, human approval) are marked **[obrigatória — nunca pular]**.
+- `.claude/skills/<pipeline-name>/SKILL.md`: a thin wrapper (frontmatter + "read and follow `metodo/skills/<pipeline-name>.md`"), started with `/<pipeline-name> <task>`. The wrapper references the method; the method never references the wrapper.
+- `_trabalho/handoffs/.gitkeep`: the folder the pipeline writes handoff files into (runtime artifacts, not method).
+- Each role file's Output section, updated so the role ends with the handoff note the next step expects.
+- The pipeline must include an independent reviewer step that runs in a clean context (a role that did not see the production), and an explicit human approval point before delivery.
 
 ## Notes For Running This
 

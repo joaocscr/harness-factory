@@ -155,9 +155,12 @@ Evals aren't a one-time setup. They grow with the harness.
 
 ## What Gets Built
 
-- `harness/evals/eval-set.md`: 10-15 evals across the three categories, in the format above
-- `harness/evals/run-evals.js`: the runner, copied unchanged from this skill's `templates/run-evals.js`
-- `harness/evals/results.md` and `harness/evals/runs/`: created by the runner on its first run. Module 7's drift check compares against `results.md`.
+*(Adapted for the portable-method layout.)*
+
+- `metodo/evals/eval-set.md`: 10-15 evals across the three categories, in the format above
+- `metodo/evals/gabaritos/`: the expected answers (answer keys), one file per eval that needs one. Production agents are denied read access to this folder via `.claude/settings.json`; only the runner and the person read it.
+- `metodo/evals/run-evals.js`: the runner, copied unchanged from this skill's `templates/run-evals.js` (needs Node; when the person's machine has no Node, skip the runner and run the evals conversationally — Claude executes each eval and the person grades against the gabarito)
+- `metodo/evals/results.md` and `metodo/evals/runs/`: created by the runner on its first run. Module 7's drift check compares against `results.md`.
 
 ## Notes For Running This
 

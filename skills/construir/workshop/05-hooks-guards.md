@@ -107,8 +107,11 @@ Hooks and reviewer complement each other: the hook catches mechanical mistakes, 
 
 ## What Gets Built
 
-- One script per hook, under `harness/hooks/`, e.g. `harness/hooks/<check-name>.js`
-- The wiring into `.claude/settings.json`, so the hooks actually run automatically. That file is the single place that says which hook runs when.
+*(Adapted for the portable-method layout.)*
+
+- One script per hook, under `metodo/checagens/hooks/`, e.g. `metodo/checagens/hooks/<check-name>.py` — Python (preferred) or PowerShell; never plain bash without a Windows alternative.
+- The wiring into `.claude/settings.json`, so the hooks actually run automatically. That file is the single place that says which hook runs when — and it always carries the standing deny rules that keep production agents out of `metodo/evals/gabaritos/`.
+- This module is run through the `guardas` skill of this plugin: it elicits the rules in the person's own domain language and translates them into hooks.
 
 ## Notes For Running This
 
