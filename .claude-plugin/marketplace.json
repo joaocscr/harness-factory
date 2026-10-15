@@ -1,0 +1,14 @@
+{
+  "name": "harness-factory",
+  "description": "Fábrica de harness de João Coutinho: do domínio intelectual ao time de agentes, para usuários leigos.",
+  "owner": {
+    "name": "João Coutinho"
+  },
+  "plugins": [
+    {
+      "name": "harness-factory",
+      "source": "./",
+      "description": "Constrói e evolui harnesses de agentes conduzindo usuários leigos, com método portável e agnóstico de modelo."
+    }
+  ]
+}

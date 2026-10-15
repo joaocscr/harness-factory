@@ -1,0 +1,13 @@
+{
+  "name": "harness-factory",
+  "displayName": "Harness Factory",
+  "version": "0.1.0",
+  "description": "Constrói e evolui harnesses de agentes para qualquer domínio intelectual, conduzindo usuários leigos em tecnologia de uma conversa sobre o trabalho deles até um time de agentes funcionando, com método portável e agnóstico de modelo.",
+  "author": {
+    "name": "João Coutinho"
+  },
+  "repository": "https://github.com/joaocscr/harness-factory",
+  "license": "Apache-2.0",
+  "keywords": ["harness", "multi-agent", "workshop", "equity-research", "metodo-portavel"],
+  "skills": "./skills/"
+}
