@@ -177,7 +177,7 @@ Why a skill and not another role? The pipeline is a procedure for the main conve
 - Don't add `context: fork` to the pipeline skill. It has to run in the main conversation to call the roles one after another.
 - A special case from the questions (e.g. "just one partial step") becomes its own small pipeline skill, not a branch inside the main one.
 - If `.claude/skills/` didn't exist before this module, tell the person to run `/reload-skills` or start a new session before trying `/<pipeline-name>`.
-- Ask whether handoff files should be committed. Default: yes, they're the audit trail. If tasks contain sensitive content, add `harness/handoffs/` to `.gitignore` instead.
+- Ask whether handoff files should be committed. Default: yes, they're the audit trail. If tasks contain sensitive content, add `_trabalho/handoffs/` to `.gitignore` instead.
 - Once the files exist, offer one real test run with the example task from the intake. A pipeline that has never run isn't done.
 - Start with sequence, even if parallel feels tempting. Debuggability matters more than speed at the start.
 - If the reviewer only shows up once, right at the end, ask whether an earlier check wouldn't pay off. It usually does.

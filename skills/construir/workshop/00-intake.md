@@ -10,7 +10,7 @@ The intake's job is to prepare the ground for the seven core modules that follow
 
 ## Questions For You
 
-Ask these in 2-3 groups, not all at once. Keep it as light as a conversation, not a form.
+Ask these in waves of 1-3 questions, as many waves as it takes to cover the three groups below (typically 4-6), never all at once. Keep it as light as a conversation, not a form.
 
 **Group 1: What comes out of this?**
 - What should the harness ultimately produce? (Code, text, decisions, data, documents, designs …)

@@ -70,7 +70,7 @@ Tradução: bloquear ferramentas que enviam/publicam, orientando a pedir aprova�
 }
 ```
 
-E `exige_aprovacao.py` sai com código 2 e a mensagem: `"Trava da casa: entregas externas exigem aprovação registrada da pessoa. Peça a aprovação e registre antes de enviar."` — o agente lê, para, e pede.
+E `exige_aprovacao.py` sai com código 2 e a mensagem **em stderr** (é de lá que o agente a lê; stdout não chega a ele no bloqueio): `"Trava da casa: entregas externas exigem aprovação registrada da pessoa. Peça a aprovação e registre antes de enviar."` — o agente lê, para, e pede.
 
 ## O que guarda não é
 

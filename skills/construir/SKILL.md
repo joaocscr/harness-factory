@@ -33,7 +33,7 @@ Você é **facilitador, não autor**. A pessoa é especialista no domínio dela 
 
 ### 1. Intake (módulo 0)
 
-Siga `workshop/00-intake.md`, em 2–3 levas relaxadas de perguntas. Produza: nome/slug do projeto, objetivo em uma frase ("um sistema de agentes, regras e travas que transforma X em Y com confiabilidade"), e o **vocabulário do domínio** que substituirá os termos genéricos em todos os módulos. Crie `CURRICULUM.md` a partir de `workshop/templates/CURRICULUM.template.md`, **traduzindo-o para a língua da pessoa e adaptando**: caminhos no layout portável (§3 abaixo, nunca os `harness/...` do template), e toda referência de skill apontando para `construir` (deste plugin), nunca para "build-harness". O CURRICULUM é a âncora da retomada entre sessões — gerado literal, ele reaciona o plugin errado e o layout antigo. Módulos 1–8 em ⬜. Mantenha também `HANDOUT.md` com pendências que surgirem ("esclarecer depois") — só o que realmente surgiu na conversa.
+Siga `workshop/00-intake.md`, em levas relaxadas de 1–3 perguntas, quantas forem necessárias até cobrir os três grupos do intake (são ~11 perguntas; tipicamente 4–6 levas). Produza: nome/slug do projeto, objetivo em uma frase ("um sistema de agentes, regras e travas que transforma X em Y com confiabilidade"), e o **vocabulário do domínio** que substituirá os termos genéricos em todos os módulos. Crie `CURRICULUM.md` a partir de `workshop/templates/CURRICULUM.template.md`, **traduzindo-o para a língua da pessoa e adaptando**: caminhos no layout portável (§3 abaixo, nunca os `harness/...` do template), e toda referência de skill apontando para `construir` (deste plugin), nunca para "build-harness". O CURRICULUM é a âncora da retomada entre sessões — gerado literal, ele reaciona o plugin errado e o layout antigo. Módulos 1–8 em ⬜. Mantenha também `HANDOUT.md` com pendências que surgirem ("esclarecer depois") — só o que realmente surgiu na conversa.
 
 ### 2. Módulos 1–7, nesta ordem
 
@@ -69,18 +69,22 @@ Todo harness gerado separa **método** (portável, versionado, agnóstico de inf
     checagens/                 ← código determinístico: cálculos (Python, com schema na saída), hooks
     evals/                     ← eval-set.md, runner; gabaritos/ (vedado aos agentes)
     GLOSSARIO.md               ← definição única de cada termo do domínio; toda skill usa estas
+                                 (criado no módulo 1, junto com as regras da casa)
   .claude/
     agents/<papel>.md          ← papéis; apontam para metodo/ pelo caminho
     skills/<nome>/SKILL.md     ← wrappers finos: frontmatter + "leia e siga metodo/skills/<nome>.md"
-    skills/comece-aqui/SKILL.md← SEMPRE gerado: recebe o leigo, explica o harness no vocabulário do
-                                 domínio, lista o que dá para pedir e conduz o primeiro uso
+    skills/comece-aqui/SKILL.md← SEMPRE gerado (no módulo 4, junto com o pipeline): recebe o leigo,
+                                 explica o harness no vocabulário do domínio, lista o que dá para
+                                 pedir e conduz o primeiro uso
     settings.json              ← hooks + SEMPRE as regras de negação de metodo/evals/gabaritos/
                                  (negar Read E comandos de shell: Bash(*gabaritos*) — senão um cat contorna)
   _trabalho/                   ← artefatos de execução (handoffs, logs); não é método
+  casos/<caso>/                ← quando o domínio trabalha por casos: insumos em documentos/ e o
+                                 produto final na raiz do caso (ex.: parecer-de-dd.md); não é método
   CLAUDE.md / AGENTS.md        ← regras da casa (módulo 1)
 ```
 
-Onde os arquivos do workshop mencionarem caminhos antigos (`harness/...`), use este layout: `harness/hooks→metodo/checagens/hooks`, `harness/evals→metodo/evals`, `harness/handoffs→_trabalho/handoffs`, `harness/observability→_trabalho/logs` (**somente os logs e métricas**: script de registro é código e vive em `metodo/checagens/hooks/`). Os templates `.js` do workshop (`run-evals.js`, `log-event.js`) são **referência de comportamento, não cópia**: gere equivalentes em Python (runner em `metodo/evals/`, registrador em `metodo/checagens/hooks/`), preservando o formato de relatório e o marcador `VERDICT: PASS/FAIL` em inglês (o runner o procura literal).
+Onde os arquivos do workshop mencionarem caminhos antigos (`harness/...`), use este layout: `harness/hooks→metodo/checagens/hooks`, `harness/evals→metodo/evals`, `harness/handoffs→_trabalho/handoffs`, `harness/observability→_trabalho/logs` (**somente os logs e métricas**: script de registro é código e vive em `metodo/checagens/hooks/`). Onde o motor mencionar `_workspace/`, leia `_trabalho/` — mesmo papel (artefatos de execução), nome deste layout. Os templates `.js` do workshop (`run-evals.js`, `log-event.js`) são **referência de comportamento, não cópia**: gere equivalentes em Python (runner em `metodo/evals/`, registrador em `metodo/checagens/hooks/`), preservando o formato de relatório e o marcador `VERDICT: PASS/FAIL` em inglês (o runner o procura literal).
 
 Invariantes de todo harness gerado (cheque antes de dar o módulo por pronto):
 

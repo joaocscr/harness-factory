@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.1.2 — 2026-10-15
+
+Fecha os 10 minors diferidos do fix pass e as duas primeiras lacunas de teste. Mapa item a item em `docs/testes/2026-10-15-fix-pass.md`.
+
+- **construir:** intake em levas de 1–3 até cobrir os três grupos; layout nomeia o módulo dono do `GLOSSARIO.md` (1) e do `comece-aqui` (4); `casos/<caso>/` entra no layout (insumos em `documentos/`, produto final na raiz do caso); mapeamento nominal `_workspace→_trabalho`; nota do módulo 4 corrigida (`_trabalho/handoffs/`).
+- **guardas:** exemplo diz explicitamente que a mensagem de bloqueio sai em stderr.
+- **evoluir:** invariantes avaliados pela função (não pelo caminho literal); histórico raso → procurar evolução em documentos; proxies observacionais quando não há pessoa; fronteira "skill nova = construir" explícita; slug do diagnóstico definido; atribuição movida da `description` para o corpo.
+- **docs:** transcript do E2E de imóveis versionado (`docs/testes/2026-10-15-e2e-imoveis-transcript.md`); CHANGELOG diz onde registrar a primeira instalação interativa.
+- **Testes novos:** retomada entre sessões via CURRICULUM.md (PASS — `docs/testes/2026-10-15-teste-retomada-curriculum.md`) e workshop em pasta com `.claude/`/`CLAUDE.md` pré-existentes, nada sobrescrito (PASS — `docs/testes/2026-10-15-teste-pasta-preexistente.md`).
+
 ## v0.1.1 — 2026-10-15
 
 Fix pass da revisão independente (parecer: "pronto com correções"). Detalhes e diferidos em `docs/testes/2026-10-15-fix-pass.md`.
@@ -25,7 +35,7 @@ Primeira versão. Fork absorvido de quatro fontes (ver ATTRIBUTION.md), fundidas
 - Biblioteca `referencia/`: 8 skills curados do muratcankoylan (MIT).
 
 ### Critérios de pronto do design (§9) — conferidos em 15/10/2026
-1. Plugin instala e os comandos aparecem — `claude plugin validate` ✔; teste de instalação interativa pendente da primeira utilização real.
+1. Plugin instala e os comandos aparecem — `claude plugin validate` ✔; teste de instalação interativa pendente da primeira utilização real (quando acontecer, registrar aqui a data e o resultado).
 2. Teste ponta a ponta com domínio leigo ✔ — workshop completo com persona leiga, estrutura 7/7 critérios; `docs/testes/2026-10-15-e2e-imoveis.md`.
 3. ATTRIBUTION.md completo, licenças em `licenses/` ✔.
 4. `evoluir` contra a equity-research-fleet ✔ — diagnóstico com 10 achados e propostas, clone intacto; `docs/testes/2026-10-15-evoluir-fleet.md`.
