@@ -29,10 +29,11 @@ Você é **facilitador, não autor**. A pessoa é especialista no domínio dela 
 3. **Retomada:** se há `CURRICULUM.md`, leia e continue do primeiro módulo sem ✅ — nunca recomece do zero.
 4. **Detecção de tecnicidade:** se a pessoa usa termos técnicos com naturalidade (cita arquivos, JSON, git) ou diz que é da área, ofereça o **modo direto**: seguir `motor/_original-harness-SKILL.md` (o fluxo técnico de 7 etapas do motor) sem o workshop. Caso contrário, nem mencione que existe.
 5. **Nunca sobrescreva** `CLAUDE.md`, `AGENTS.md`, `.mcp.json` ou `.claude/settings.json` existentes: leia, acrescente e mostre o resultado antes de gravar. Conflito com algo que já existe (regra, hook no mesmo evento, nome de agente/skill)? Pare e pergunte.
+6. **Versionamento desde o início:** se a pasta não for um repositório git, inicialize (`git init`) e explique em linguagem leiga ("um caderno de versões: toda mudança fica registrada e dá para voltar atrás"). Faça um commit ao fechar cada módulo — o método é, por exigência, versionado.
 
 ### 1. Intake (módulo 0)
 
-Siga `workshop/00-intake.md`, em 2–3 levas relaxadas de perguntas. Produza: nome/slug do projeto, objetivo em uma frase ("um sistema de agentes, regras e travas que transforma X em Y com confiabilidade"), e o **vocabulário do domínio** que substituirá os termos genéricos em todos os módulos. Crie `CURRICULUM.md` a partir de `workshop/templates/CURRICULUM.template.md`, com módulos 1–8 em ⬜. Mantenha também `HANDOUT.md` com pendências que surgirem ("esclarecer depois") — só o que realmente surgiu na conversa.
+Siga `workshop/00-intake.md`, em 2–3 levas relaxadas de perguntas. Produza: nome/slug do projeto, objetivo em uma frase ("um sistema de agentes, regras e travas que transforma X em Y com confiabilidade"), e o **vocabulário do domínio** que substituirá os termos genéricos em todos os módulos. Crie `CURRICULUM.md` a partir de `workshop/templates/CURRICULUM.template.md`, **traduzindo-o para a língua da pessoa e adaptando**: caminhos no layout portável (§3 abaixo, nunca os `harness/...` do template), e toda referência de skill apontando para `construir` (deste plugin), nunca para "build-harness". O CURRICULUM é a âncora da retomada entre sessões — gerado literal, ele reaciona o plugin errado e o layout antigo. Módulos 1–8 em ⬜. Mantenha também `HANDOUT.md` com pendências que surgirem ("esclarecer depois") — só o que realmente surgiu na conversa.
 
 ### 2. Módulos 1–7, nesta ordem
 
@@ -49,6 +50,11 @@ Cada arquivo do workshop tem quatro partes: **Core Idea** (apresente com suas pa
 | 7 Observabilidade | `workshop/07-observability.md` | ao final, rode o skill **`validar`** deste plugin |
 
 Módulo 8 (dashboard) é bônus: mencione ao fim do 7, só se houver ≥5 logs reais.
+
+Notas que corrigem o texto dos módulos (em conflito motor×workshop×templates, **vale este SKILL.md**):
+
+- **Módulo 6 — evals × aprovação humana:** uma eval automática roda sem ninguém para aprovar. Toda eval de pipeline roda em **modo eval**: a aprovação humana é registrada como "simulada — modo teste" no relatório da eval (nunca silenciosamente pulada), ou o trajeto da eval termina na etapa anterior à aprovação. O eval-set gerado declara qual das duas.
+- **Módulo 7 — registro do harness:** ao fechar o módulo 7, grave no `CLAUDE.md` do projeto (abaixo da linha `@AGENTS.md`) a seção de registro do harness: objetivo em uma linha, condição de acionamento e a tabela de histórico de mudanças (data, mudança, alvo, motivo). É isso que o `validar` (item 11) confere e o `evoluir` (Fase 4) atualiza.
 
 Regras do motor que valem em todos os módulos: antes de criar agente ou skill novos, confira sobreposição com os existentes (estenda em vez de duplicar); modelo de cada agente escolhido por complexidade/duração/autonomia da tarefa — **nunca** o mesmo modelo top para todos, **nunca** `model:` fixado sem justificativa escrita no próprio arquivo (exigência de agnosticismo: o método não pode depender de um modelo).
 
@@ -69,11 +75,12 @@ Todo harness gerado separa **método** (portável, versionado, agnóstico de inf
     skills/comece-aqui/SKILL.md← SEMPRE gerado: recebe o leigo, explica o harness no vocabulário do
                                  domínio, lista o que dá para pedir e conduz o primeiro uso
     settings.json              ← hooks + SEMPRE as regras de negação de metodo/evals/gabaritos/
+                                 (negar Read E comandos de shell: Bash(*gabaritos*) — senão um cat contorna)
   _trabalho/                   ← artefatos de execução (handoffs, logs); não é método
   CLAUDE.md / AGENTS.md        ← regras da casa (módulo 1)
 ```
 
-Onde os arquivos do workshop mencionarem caminhos antigos (`harness/...`), use este layout: `harness/hooks→metodo/checagens/hooks`, `harness/evals→metodo/evals`, `harness/handoffs→_trabalho/handoffs`, `harness/observability→_trabalho/logs`.
+Onde os arquivos do workshop mencionarem caminhos antigos (`harness/...`), use este layout: `harness/hooks→metodo/checagens/hooks`, `harness/evals→metodo/evals`, `harness/handoffs→_trabalho/handoffs`, `harness/observability→_trabalho/logs` (**somente os logs e métricas**: script de registro é código e vive em `metodo/checagens/hooks/`). Os templates `.js` do workshop (`run-evals.js`, `log-event.js`) são **referência de comportamento, não cópia**: gere equivalentes em Python (runner em `metodo/evals/`, registrador em `metodo/checagens/hooks/`), preservando o formato de relatório e o marcador `VERDICT: PASS/FAIL` em inglês (o runner o procura literal).
 
 Invariantes de todo harness gerado (cheque antes de dar o módulo por pronto):
 

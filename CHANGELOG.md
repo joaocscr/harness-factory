@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.1.1 — 2026-10-15
+
+Fix pass da revisão independente (parecer: "pronto com correções"). Detalhes e diferidos em `docs/testes/2026-10-15-fix-pass.md`.
+
+- **guardas/validar:** hooks Python leem stdin como UTF-8 obrigatório (bug real do Windows encontrado no E2E: cp1252 corrompia acentos e bloqueava trabalho correto).
+- **construir:** CURRICULUM gerado traduzido/adaptado (retomada segura); registro do harness no CLAUDE.md fecha o módulo 7; templates `.js` viram porte fiel em Python; evals de pipeline em "modo eval" (aprovação simulada declarada); negação de gabaritos cobre shell; `git init` com explicação leiga e commit por módulo; módulo 7 do workshop adaptado ao layout portável.
+- **evoluir:** alvo sem registro no CLAUDE.md → criar a seção é a primeira proposta do diagnóstico.
+- **README:** aviso de que o plugin substitui o build-harness original (colisão de gatilho).
+
 ## v0.1.0 — 2026-10-15
 
 Primeira versão. Fork absorvido de quatro fontes (ver ATTRIBUTION.md), fundidas em um plugin único.

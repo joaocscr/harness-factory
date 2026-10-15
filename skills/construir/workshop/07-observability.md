@@ -117,21 +117,23 @@ All three together give a complete picture.
 
 ## What Gets Built
 
-- `harness/observability/logs/.gitkeep`: folder for session logs
-- `harness/observability/log-event.js`: the script that writes the log, copied unchanged from this skill's `templates/log-event.js`
+*(Adapted for the portable-method layout. The logger is code, so it lives with the method's checks; only the logs themselves are runtime artifacts. Per the main SKILL.md: the `.js` template is a behavior reference — generate a faithful Python port, reading stdin as UTF-8.)*
+
+- `_trabalho/logs/.gitkeep`: folder for session logs and metrics (runtime artifacts, not method)
+- `metodo/checagens/hooks/registrar_evento.py`: the script that writes the log — a faithful Python port of this skill's `templates/log-event.js` (same log lines, same file naming, target folder `_trabalho/logs/`)
 - The wiring for it in `.claude/settings.json`, next to the hooks from Module 5:
 
   ```json
   "SubagentStop": [
-    { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PROJECT_DIR}/harness/observability/log-event.js\"" } ] }
+    { "hooks": [ { "type": "command", "command": "python \"${CLAUDE_PROJECT_DIR}/metodo/checagens/hooks/registrar_evento.py\"" } ] }
   ],
   "SessionEnd": [
-    { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PROJECT_DIR}/harness/observability/log-event.js\"" } ] }
+    { "hooks": [ { "type": "command", "command": "python \"${CLAUDE_PROJECT_DIR}/metodo/checagens/hooks/registrar_evento.py\"" } ] }
   ]
   ```
-- One added line in each guard script from Module 5, at the point where it triggers: `require('../observability/log-event.js').logHook(input, '<hook-name>', blocked)`
-- `harness/observability/metrics.md`: metrics table (empty, ready to fill in)
-- `harness/observability/drift-check.md`: instructions for the regular drift check
+- One added call in each guard script from Module 5, at the point where it triggers, importing the logger module and recording `(input, '<hook-name>', blocked)`
+- `_trabalho/logs/metricas.md`: metrics table (empty, ready to fill in)
+- `_trabalho/logs/verificacao-de-deriva.md`: instructions for the regular drift check
 
 ## Notes For Running This
 

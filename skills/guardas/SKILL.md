@@ -31,7 +31,9 @@ Mapa interno (não mostre a tabela; use-a):
 | preparar/lembrar no início | `SessionStart` | injetar o lembrete/contexto |
 | reagir ao que a pessoa pediu ("se eu pedir X, lembre de Y") | `UserPromptSubmit` | acrescentar contexto |
 
-Decida: a checagem cabe numa condição simples (hook direto) ou precisa de lógica (script em `metodo/checagens/hooks/`, **Python ou PowerShell — nunca bash puro**, saindo com código 2 e mensagem clara quando bloquear)?
+Decida: a checagem cabe numa condição simples (hook direto) ou precisa de lógica (script em `metodo/checagens/hooks/`, **Python ou PowerShell — nunca bash puro**, saindo com código 2 e mensagem clara **em stderr** quando bloquear)?
+
+**Encoding (obrigatório em todo hook Python):** no Windows, o Python lê stdin como cp1252 por padrão e corrompe acentos — um bloqueio por texto corrompido barra trabalho correto e o leigo não tem como diagnosticar. Todo hook gerado lê a entrada com `sys.stdin.buffer.read().decode("utf-8")` e reconfigura a saída com `sys.stderr.reconfigure(encoding="utf-8")` (bug real encontrado em teste, 15/10/2026).
 
 ### 3. Mostrar em linguagem leiga e aprovar
 

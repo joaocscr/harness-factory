@@ -25,6 +25,8 @@ Repositório **privado** de João Coutinho (joaocscr). Copyright © 2026 João C
 /plugin install harness-factory@harness-factory
 ```
 
+> **Importante:** o harness-factory **substitui** o plugin `build-harness` original (Philipp Jeroma). Se ele estiver instalado, desinstale-o ou desabilite-o — os dois disparam nas mesmas frases ("construir um harness", "build a harness") e, concorrendo, podem acionar o fluxo errado.
+
 ## Mapa do repositório
 
 ```

@@ -63,7 +63,7 @@ Com o OK da pessoa sobre o diagnóstico (inteiro ou por item):
 
 1. Uma mudança por vez; valide cada uma antes da próxima (estrutura/frontmatter íntegros, referências consistentes).
 2. Mudou `description`? Teste o gatilho: 3+ frases que devem disparar, 3+ vizinhas que não devem.
-3. Registre no histórico de mudanças do `CLAUDE.md` do alvo: data, mudança, alvo, motivo.
+3. Registre no histórico de mudanças do `CLAUDE.md` do alvo: data, mudança, alvo, motivo. Se o alvo não tem `CLAUDE.md` ou ele não registra o harness, criar a seção de registro é a primeira mudança a propor no diagnóstico — e, aprovada, é a primeira a aplicar.
 4. Confirme que `CLAUDE.md` e os arquivos reais batem.
 
 ## Fase 5: relatório
