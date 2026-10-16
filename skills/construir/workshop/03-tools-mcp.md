@@ -1,144 +1,144 @@
-# Module 3: Tools & MCP
+# Módulo 3: Ferramentas e MCP
 
-## Core Idea
+## Ideia central
 
-So far, we've defined who the agents are and what their rules are. But agents can so far only think; they can't yet do anything.
+Até aqui, definimos quem são os agentes e quais são as regras deles. Mas, por enquanto, os agentes só conseguem pensar; ainda não conseguem fazer nada.
 
-An agent that only reads and writes text is like someone with no access to the actual tools of the trade. It has the knowledge, but not the hands.
+Um agente que só lê e escreve texto é como alguém sem acesso às ferramentas reais do ofício. Tem o conhecimento, mas não tem as mãos.
 
-**Tools** give an agent hands. They let it:
-- Read and write files
-- Call APIs
-- Inspect external systems
-- Validate things
-- Use external services
+**Ferramentas** dão mãos a um agente. Elas permitem que ele:
+- Leia e grave arquivos
+- Chame APIs
+- Inspecione sistemas externos
+- Valide coisas
+- Use serviços externos
 
-## What a Tool Is
+## O que é uma ferramenta
 
-A tool is a function the agent can call. It decides for itself when it needs which tool, based on its task and the context.
+Uma ferramenta é uma função que o agente pode chamar. Ele decide sozinho quando precisa de qual ferramenta, com base na sua tarefa e no contexto.
 
-From the agent's point of view, a tool looks like this:
-
-```
-Name:         read_record
-Description:  Reads a record from the system of record
-Input:        { "id": "..." }
-Output:       The content as structured data
-```
-
-The agent reads the description and decides: "I need this information to check whether X already exists. I'll call this tool."
-
-The description is what matters most. A poorly described tool gets used incorrectly by the agent, or not at all.
-
-## What MCP Is
-
-MCP stands for **Model Context Protocol**, an open standard that defines how tools get exchanged between systems.
-
-Think of it as a power outlet:
-- In the past, every AI provider had its own tool API, incompatible with all the others
-- MCP is the standardized outlet: a tool that speaks MCP works with any agent that understands MCP
-
-That means an MCP server someone else built (e.g. for Figma, GitHub, a database) works instantly in your own harness. You don't have to build it yourself.
+Do ponto de vista do agente, uma ferramenta tem esta cara:
 
 ```
-Agent (a role in Claude Code)
+Nome:         read_record
+Descrição:    Lê um registro do sistema de registro oficial
+Entrada:      { "id": "..." }
+Saída:        O conteúdo como dados estruturados
+```
+
+O agente lê a descrição e decide: "Preciso desta informação para conferir se X já existe. Vou chamar esta ferramenta."
+
+A descrição é o que mais importa. Uma ferramenta mal descrita é usada errado pelo agente, ou nem é usada.
+
+## O que é MCP
+
+MCP significa **Model Context Protocol**, um padrão aberto que define como ferramentas são trocadas entre sistemas.
+
+Pense nele como uma tomada:
+- Antigamente, cada provedor de IA tinha sua própria API de ferramentas, incompatível com todas as outras
+- O MCP é a tomada padronizada: uma ferramenta que fala MCP funciona com qualquer agente que entenda MCP
+
+Isso significa que um servidor MCP que outra pessoa construiu (ex.: para Figma, GitHub, um banco de dados) funciona na hora no seu próprio harness. Você não precisa construí-lo.
+
+```
+Agente (um papel no Claude Code)
     ↕ MCP
-MCP Server (Figma, Filesystem, GitHub, internal system...)
+Servidor MCP (Figma, sistema de arquivos, GitHub, sistema interno...)
     ↕
-External System
+Sistema externo
 ```
 
-## Two Kinds of Tools
+## Dois tipos de ferramenta
 
-**1. Built-in Tools**
-Available directly in the agent system: reading/writing files, running code, web search. These don't need to be installed; a role just needs them on its list.
+**1. Ferramentas nativas**
+Disponíveis diretamente no sistema de agentes: ler/gravar arquivos, executar código, busca na web. Não precisam ser instaladas; basta um papel tê-las na sua lista.
 
-**2. MCP Servers**
-External servers that provide specialized tools, for exactly the system this field works with. These need to be configured: which servers are available.
+**2. Servidores MCP**
+Servidores externos que oferecem ferramentas especializadas, exatamente para o sistema com que este domínio trabalha. Precisam ser configurados: quais servidores estão disponíveis.
 
-## What Tools Does This Harness Need?
+## De que ferramentas este harness precisa?
 
-Go through the roles from Module 2 and ask for each: what does it need to read? What does it need to write? What external system does it need to access?
+Percorra os papéis do Módulo 2 e pergunte, para cada um: o que ele precisa ler? O que ele precisa gravar? A que sistema externo ele precisa acessar?
 
-| Role | Needs | Tool |
+| Papel | Precisa | Ferramenta |
 |---|---|---|
-| *(from Module 2, role 1)* | *(read/write/check what)* | *(Filesystem / MCP server / Custom)* |
-| *(from Module 2, role 2)* | … | … |
-| Reviewer | Ability to read everything the others produced | `Read, Grep, Glob` (usually enough) |
+| *(do Módulo 2, papel 1)* | *(ler/gravar/conferir o quê)* | *(Sistema de arquivos / servidor MCP / sob medida)* |
+| *(do Módulo 2, papel 2)* | … | … |
+| Revisor | Capacidade de ler tudo o que os outros produziram | `Read, Grep, Glob` (geralmente basta) |
 
-Two or three tool categories usually cover almost everything; the rest is optional or very specific.
+Duas ou três categorias de ferramenta costumam cobrir quase tudo; o resto é opcional ou muito específico.
 
-## How Tools Get Configured
+## Como as ferramentas são configuradas
 
-Two places, two questions.
+Dois lugares, duas perguntas.
 
-**1. Which servers exist?** One file at the project root, `.mcp.json`:
+**1. Que servidores existem?** Um arquivo na raiz do projeto, `.mcp.json`:
 
 ```json
 {
   "mcpServers": {
-    "<name>": {
-      "command": "<mcp-server-command>",
-      "args": ["<argument>"]
+    "<nome>": {
+      "command": "<comando-do-servidor-mcp>",
+      "args": ["<argumento>"]
     }
   }
 }
 ```
 
-**2. Which role may use what?** The `tools` line in each role file from Module 2:
+**2. Que papel pode usar o quê?** A linha `tools` em cada arquivo de papel do Módulo 2:
 
 ```markdown
 ---
-name: <creator-role>
+name: <papel-criador>
 description: ...
-tools: Read, Grep, Glob, Write, Edit, mcp__<server>__<tool>
+tools: Read, Grep, Glob, Write, Edit, mcp__<servidor>__<ferramenta>
 ---
 ```
 
-`tools` is an allowlist: a role can use what's listed and nothing else. Built-in tools go by their name (`Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`). Tools from an MCP server are named `mcp__<server>__<tool>`; `mcp__<server>` alone grants every tool that server offers.
+`tools` é uma lista de permissão: um papel pode usar o que está listado e nada mais. Ferramentas nativas vão pelo nome (`Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`). Ferramentas de um servidor MCP se chamam `mcp__<servidor>__<ferramenta>`; `mcp__<servidor>` sozinho concede todas as ferramentas que aquele servidor oferece.
 
-This is where the boundaries from Module 2 become enforceable. A role whose file says "doesn't change the source of truth" and whose `tools` line has no write tool for it can't cross that line, even by mistake.
+É aqui que os limites do Módulo 2 passam a ser aplicáveis de fato. Um papel cujo arquivo diz "não altera a fonte da verdade" e cuja linha `tools` não tem ferramenta de gravação para ela não consegue cruzar essa linha, nem por engano.
 
-For the reviewer, list MCP tools one by one and only the ones that read. `mcp__<server>` would hand it the server's write tools too.
+Para o revisor, liste as ferramentas MCP uma a uma e só as que leem. `mcp__<servidor>` entregaria a ele também as ferramentas de gravação do servidor.
 
-## Tool Descriptions Are Context
+## Descrições de ferramentas são contexto
 
-This is the most important point in this module: **tools aren't just functions, they're context.**
+Este é o ponto mais importante deste módulo: **ferramentas não são só funções, são contexto.**
 
-A good description tells the agent when to use the tool. A bad description leads to the agent ignoring the tool or misusing it.
+Uma boa descrição diz ao agente quando usar a ferramenta. Uma descrição ruim leva o agente a ignorar a ferramenta ou a usá-la mal.
 
-Bad:
+Ruim:
 ```
-Name: get_file
-Description: Gets a file
-```
-
-Good:
-```
-Name: get_record
-Description: Reads a record from the system of record.
-Use this before creating something new, to check whether it already exists.
-Returns the full content of the requested record.
+Nome: get_file
+Descrição: Pega um arquivo
 ```
 
-## Questions For You
+Bom:
+```
+Nome: get_record
+Descrição: Lê um registro do sistema de registro oficial.
+Use antes de criar algo novo, para conferir se já existe.
+Devolve o conteúdo completo do registro solicitado.
+```
 
-- For each role from Module 2: what does it need to read/write/check?
-- Which existing tools/systems are already used day-to-day that the agent should have access to? (From the intake, concretize here)
-- Does an MCP server already exist for that (official or community), or does something custom need to be built?
+## Perguntas para a pessoa
 
-## What Gets Built
+- Para cada papel do Módulo 2: o que ele precisa ler/gravar/conferir?
+- Que ferramentas/sistemas já usados no dia a dia o agente deveria acessar? (Do intake; concretize aqui)
+- Já existe um servidor MCP para isso (oficial ou da comunidade), ou é preciso construir algo sob medida?
 
-- `.mcp.json` at the project root: which MCP servers are active (skip it if no role needs an external system)
-- The `tools` line in every role file under `.claude/agents/`, updated to what that role actually needs
-- Where a role should use a tool at a specific moment ("check for an existing record before creating one"), that sentence goes into the role's Process section
-- Optional: `harness/tools/tool-descriptions.md`, a plain overview for humans of which role uses which tool. Agents don't load it.
+## O que é construído
 
-## Notes For Running This
+- `.mcp.json` na raiz do projeto: quais servidores MCP estão ativos (pule se nenhum papel precisar de sistema externo)
+- A linha `tools` em todo arquivo de papel em `.claude/agents/`, atualizada para o que aquele papel realmente precisa
+- Onde um papel deve usar uma ferramenta num momento específico ("conferir se já existe um registro antes de criar um"), essa frase vai para a seção Processo do papel
+- Opcional: `harness/tools/tool-descriptions.md`, uma visão geral simples, para humanos, de qual papel usa qual ferramenta. Os agentes não o carregam.
 
-- If `.mcp.json` already exists, add to it; don't replace it. Show the person the result before writing.
-- Never write secrets (API keys, tokens) into `.mcp.json`. Reference an environment variable instead (`"${API_KEY}"`) and note in `HANDOUT.md` that it needs to be set.
-- Claude Code asks for approval before using servers from a project's `.mcp.json`. Tell the person to start a new session and approve them, then check with `/mcp` that they're connected.
-- You don't write the descriptions of an existing MCP server's tools; the server brings them. The "good vs. bad description" lesson applies to custom tools and to how the role file tells a role when to use a tool.
-- If it's unclear whether an MCP server exists, say so openly. Don't guess or invent one. Research it if possible, or flag it in `HANDOUT.md` as an open item.
-- Start small: two well-described tools beat ten half-finished ones.
+## Notas de condução
+
+- Se o `.mcp.json` já existir, acrescente a ele; não o substitua. Mostre o resultado à pessoa antes de gravar.
+- Nunca grave segredos (chaves de API, tokens) no `.mcp.json`. Referencie uma variável de ambiente em vez disso (`"${API_KEY}"`) e anote no `HANDOUT.md` que ela precisa ser definida.
+- O Claude Code pede aprovação antes de usar servidores do `.mcp.json` de um projeto. Diga à pessoa para abrir uma sessão nova e aprová-los, depois confira com `/mcp` que estão conectados.
+- Você não escreve as descrições das ferramentas de um servidor MCP existente; o servidor as traz. A lição "descrição boa vs. ruim" vale para ferramentas sob medida e para a forma como o arquivo de papel diz a um papel quando usar uma ferramenta.
+- Se não estiver claro se existe um servidor MCP, diga isso abertamente. Não chute nem invente um. Pesquise, se possível, ou sinalize no `HANDOUT.md` como item em aberto.
+- Comece pequeno: duas ferramentas bem descritas valem mais que dez feitas pela metade.

@@ -1,18 +1,18 @@
 #!/usr/bin/env node
-// Session logger for a build-harness project.
-// Lives at harness/observability/log-event.js and writes one JSON line per
-// event to harness/observability/logs/<date>-<session-id>.jsonl.
+// Registrador de sessão para um projeto build-harness.
+// Fica em harness/observability/log-event.js e escreve uma linha JSON por
+// evento em harness/observability/logs/<data>-<id-da-sessao>.jsonl.
 //
-// As a hook (wired in .claude/settings.json), it reads the hook input on stdin:
-//   SubagentStop -> a "role" line: which role ran, its tokens, the reviewer's verdict
-//   SessionEnd   -> a "session" line: tokens and duration of the whole session
+// Como hook (ligado em .claude/settings.json), lê a entrada do hook no stdin:
+//   SubagentStop -> uma linha "role": qual papel rodou, seus tokens, o veredito do revisor
+//   SessionEnd   -> uma linha "session": tokens e duração da sessão inteira
 //
-// From a guard script (Module 5), to record that the guard triggered:
-//   require('../observability/log-event.js').logHook(input, '<hook-name>', blocked)
+// A partir de um script de guarda (Módulo 5), para registrar que a guarda disparou:
+//   require('../observability/log-event.js').logHook(input, '<nome-do-hook>', blocked)
 //
-// Token counts are read from Claude Code's transcript files. That format isn't
-// a stable interface, so every read is guarded: a value that can't be read is
-// written as null, never estimated.
+// As contagens de tokens são lidas dos arquivos de transcrição do Claude Code. Esse formato
+// não é uma interface estável, então toda leitura é protegida: um valor que não pode ser lido
+// é gravado como null, nunca estimado.
 
 const fs = require('fs');
 const path = require('path');
@@ -39,14 +39,14 @@ function readEntries(transcriptPath) {
     try {
       entries.push(JSON.parse(line));
     } catch {
-      // skip a line that's still being written
+      // pula uma linha que ainda está sendo escrita
     }
   }
   return entries;
 }
 
-// Sums the usage of every model reply in a transcript. One reply can span
-// several lines that repeat the same usage, so replies are counted once by id.
+// Soma o consumo de cada resposta do modelo numa transcrição. Uma resposta pode ocupar
+// várias linhas que repetem o mesmo consumo, então as respostas são contadas uma vez por id.
 function sumTokens(transcriptPath) {
   try {
     const usageById = new Map();
@@ -87,7 +87,7 @@ function verdictOf(text) {
   return match ? match[1].toLowerCase() : null;
 }
 
-// Tokens the roles used in this session, taken from the "role" lines already logged.
+// Tokens que os papéis usaram nesta sessão, tirados das linhas "role" já registradas.
 function roleTokensSoFar(sessionId) {
   try {
     return fs
@@ -145,7 +145,7 @@ if (require.main === module) {
       if (input.hook_event_name === 'SubagentStop') logRole(input);
       else if (input.hook_event_name === 'SessionEnd') logSession(input);
     } catch (error) {
-      // A logging failure must never interrupt the session.
+      // Uma falha de registro nunca pode interromper a sessão.
       process.stderr.write(`log-event: ${error.message}\n`);
     }
     process.exit(0);

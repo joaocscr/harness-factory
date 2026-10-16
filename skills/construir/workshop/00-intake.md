@@ -1,44 +1,44 @@
-# Module 0: Intake, Your Field
+# Módulo 0: Intake, o seu domínio
 
-## Core Idea
+## Ideia central
 
-Every harness, whether it produces design tokens, contracts, financial reports, support replies, or code, has the same underlying structure: context, roles, tools, sequence, guards, quality criteria, visibility.
+Todo harness, seja ele produtor de design tokens, contratos, relatórios financeiros, respostas de suporte ou código, tem a mesma estrutura de base: contexto, papéis, ferramentas, sequência, guardas, critérios de qualidade, visibilidade.
 
-The structure stays the same across fields; the **content** that fills each slot is what changes. Before Module 1 starts, you need enough about the person's field to fill the generic placeholders in the following modules with real terms.
+A estrutura é a mesma em qualquer domínio; o que muda é o **conteúdo** que preenche cada espaço. Antes de o Módulo 1 começar, você precisa saber o suficiente sobre o domínio da pessoa para preencher os marcadores genéricos dos módulos seguintes com termos reais.
 
-The intake's job is to prepare the ground for the seven core modules that follow, not to produce an artifact of its own.
+A função do intake é preparar o terreno para os sete módulos centrais que vêm a seguir, não produzir um artefato próprio.
 
-## Questions For You
+## Perguntas para a pessoa
 
-Ask these in waves of 1-3 questions, as many waves as it takes to cover the three groups below (typically 4-6), never all at once. Keep it as light as a conversation, not a form.
+Faça estas perguntas em levas de 1-3, quantas levas forem necessárias para cobrir os três grupos abaixo (tipicamente 4-6), nunca todas de uma vez. Mantenha a leveza de uma conversa, não de um formulário.
 
-**Group 1: What comes out of this?**
-- What should the harness ultimately produce? (Code, text, decisions, data, documents, designs …)
-- Who uses that result, and for what? (Another team? Customers? A downstream system?)
-- What's a good example of a typical task the harness should eventually handle? (A concrete, real one, not wishful thinking)
+**Grupo 1: O que sai disto?**
+- O que o harness deve produzir, no fim das contas? (Código, texto, decisões, dados, documentos, designs …)
+- Quem usa esse resultado, e para quê? (Outra equipe? Clientes? Um sistema mais adiante no fluxo?)
+- Qual é um bom exemplo de tarefa típica que o harness deveria acabar dando conta? (Uma concreta e real, não um desejo)
 
-**Group 2: What holds true in this field?**
-- What's the source of truth? A tool, a repository, a document, a system: where does the current, authoritative state live?
-- What recurring building blocks/categories exist? (In a design system: token categories. In legal: contract clauses. In finance: account categories. What's the equivalent here?)
-- What naming or structure convention is already in use, or should be?
-- What language is used for names, comments, documentation?
+**Grupo 2: O que vale neste domínio?**
+- Qual é a fonte da verdade? Uma ferramenta, um repositório, um documento, um sistema: onde fica o estado atual e oficial?
+- Que blocos/categorias recorrentes existem? (Num design system: categorias de tokens. No jurídico: cláusulas contratuais. Em finanças: categorias de contas. Qual é o equivalente aqui?)
+- Que convenção de nomes ou de estrutura já está em uso, ou deveria estar?
+- Que língua se usa em nomes, comentários, documentação?
 
-**Group 3: What must never happen, and who works on what?**
-- What must an agent in this field **never** do? (The hardest, non-negotiable rules; even if there's only one, this is the single most important sentence in the whole intake)
-- What different work steps/roles normally exist when a human does this work? (This becomes the blueprint for the roles in Module 2)
-- How do you recognize good work in this field, and bad work? What would an experienced person in this field immediately flag as a mistake?
-- What tools/systems does the agent need access to? (A design tool, a code repo, a database, an external API …)
+**Grupo 3: O que nunca pode acontecer, e quem trabalha em quê?**
+- O que um agente neste domínio **nunca** deve fazer? (As regras mais duras, inegociáveis; mesmo que seja só uma, esta é a frase mais importante de todo o intake)
+- Que etapas de trabalho/papéis diferentes existem normalmente quando um humano faz esse trabalho? (Isso vira a planta dos papéis no Módulo 2)
+- Como se reconhece um bom trabalho neste domínio, e um ruim? O que uma pessoa experiente na área apontaria na hora como erro?
+- A que ferramentas/sistemas o agente precisa ter acesso? (Uma ferramenta de design, um repositório de código, um banco de dados, uma API externa …)
 
-## What Gets Built
+## O que é construído
 
-The answers don't produce a standalone artifact, but instead:
-- A **project name/slug** (e.g. `legal-review-harness`, `support-macro-harness`)
-- A **one-sentence goal**, which lands in `CURRICULUM.md`, following the pattern: *"A system of agents, rules, tools, and guards that reliably turns [input] into [output], without [person] having to steer every step themselves."*
-- A first `CURRICULUM.md`, following `templates/CURRICULUM.template.md`, with the goal sentence and modules 1-8 marked ⬜
+As respostas não produzem um artefato independente, e sim:
+- Um **nome/slug do projeto** (ex.: `legal-review-harness`, `support-macro-harness`)
+- Um **objetivo em uma frase**, que vai para o `CURRICULUM.md`, seguindo o padrão: *"Um sistema de agentes, regras, ferramentas e guardas que transforma [entrada] em [saída] com confiabilidade, sem que [pessoa] precise conduzir cada passo pessoalmente."*
+- Um primeiro `CURRICULUM.md`, seguindo `templates/CURRICULUM.template.md`, com a frase de objetivo e os módulos 1-8 marcados ⬜
 
-## Notes For Running This
+## Notas de condução
 
-- If answers stay vague ("automate everything somehow"), dig deeper using the concrete example from Group 1. Abstract answers become concrete once you walk through a real case.
-- If the person already has an existing, informal workflow (even without AI), ask about it explicitly. It's often the best source for roles and sequence in Module 4.
-- If "what must never happen" comes up empty, push: "What would be the most embarrassing/costly mistake an agent could make here?" Almost every field has at least one answer to that.
-- Note down the exact terms the person uses, not your own rephrasings. You'll want to carry those 1:1 into the `AGENTS.md` in Module 1.
+- Se as respostas ficarem vagas ("automatizar tudo de algum jeito"), aprofunde usando o exemplo concreto do Grupo 1. Respostas abstratas ficam concretas quando você percorre um caso real.
+- Se a pessoa já tem um fluxo de trabalho informal (mesmo sem IA), pergunte sobre ele explicitamente. Muitas vezes é a melhor fonte para os papéis e a sequência do Módulo 4.
+- Se "o que nunca pode acontecer" vier vazio, insista: "Qual seria o erro mais constrangedor/caro que um agente poderia cometer aqui?" Quase todo domínio tem pelo menos uma resposta para isso.
+- Anote os termos exatos que a pessoa usa, não as suas reformulações. Você vai querer levá-los 1:1 para o `AGENTS.md` no Módulo 1.

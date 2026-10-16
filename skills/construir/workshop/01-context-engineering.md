@@ -1,99 +1,99 @@
-# Module 1: Context Engineering
+# Módulo 1: Engenharia de contexto
 
-## Core Idea
+## Ideia central
 
-Imagine hiring someone new for this work. On day one, they sit down in front of a blank page.
-What do they need to do good work?
+Imagine contratar alguém novo para este trabalho. No primeiro dia, a pessoa se senta diante de uma página em branco.
+Do que ela precisa para fazer um bom trabalho?
 
-- What context, what tone, what expectations?
-- What already exists: which building blocks, which templates?
-- What rules apply (structure, naming, boundaries)?
-- What has the organization already decided?
-- What hasn't worked so far?
+- Que contexto, que tom, que expectativas?
+- O que já existe: quais blocos, quais modelos?
+- Que regras valem (estrutura, nomes, limites)?
+- O que a organização já decidiu?
+- O que não funcionou até agora?
 
-An AI agent is exactly the same. It starts every task with no memory, no experience, except what you give it.
+Um agente de IA é exatamente igual. Ele começa toda tarefa sem memória, sem experiência, exceto o que você lhe dá.
 
-**Context Engineering** is the art of supplying exactly the right context. Not too little (the agent makes mistakes), not too much (expensive, slow, the agent loses focus).
+**Engenharia de contexto** é a arte de fornecer exatamente o contexto certo. Nem pouco demais (o agente erra), nem demais (caro, lento, o agente perde o foco).
 
-## The Token Budget: Why Context Costs Money
+## O orçamento de tokens: por que contexto custa dinheiro
 
-Every word an AI agent receives costs tokens. Tokens cost money.
-Loading an entire repository or archive into every prompt is like sending a new colleague the whole company wiki every day just so they can answer one Slack message.
+Cada palavra que um agente de IA recebe custa tokens. Tokens custam dinheiro.
+Carregar um repositório ou arquivo inteiro em cada prompt é como mandar a wiki inteira da empresa para um colega novo todos os dias só para ele responder uma mensagem no Slack.
 
-**The golden rule:** the agent gets exactly what an experienced new hire would need on day one, no more, no less.
+**A regra de ouro:** o agente recebe exatamente o que um contratado novo e experiente precisaria no primeiro dia, nem mais, nem menos.
 
-## The 4 Types of Context
+## Os 4 tipos de contexto
 
-| Type | What it is | Example |
+| Tipo | O que é | Exemplo |
 |---|---|---|
-| **Persistent** | Always present, rarely changes | Core rules, naming conventions |
-| **Episodic** | Relevant for this one task | "We're working on this specific case/component right now" |
-| **Semantic** | Domain knowledge | "X means Y in this field, not Z" |
-| **Procedural** | How things get done | "Clarify A first, then implement B" |
+| **Persistente** | Sempre presente, raramente muda | Regras centrais, convenções de nomes |
+| **Episódico** | Relevante para esta tarefa | "Estamos trabalhando neste caso/componente específico agora" |
+| **Semântico** | Conhecimento do domínio | "X significa Y neste domínio, não Z" |
+| **Procedimental** | Como as coisas são feitas | "Esclareça A primeiro, depois implemente B" |
 
-Fill the example column with the terms from the intake; that makes the table immediately tangible instead of abstract.
+Preencha a coluna de exemplo com os termos do intake; isso torna a tabela imediatamente palpável em vez de abstrata.
 
-## What Belongs in a Good AGENTS.md
+## O que pertence a um bom AGENTS.md
 
-The `AGENTS.md` is the persistent context: always loaded, always active.
+O `AGENTS.md` é o contexto persistente: sempre carregado, sempre ativo.
 
-It lives at the project root, next to a `CLAUDE.md` that contains a single line:
+Ele fica na raiz do projeto, ao lado de um `CLAUDE.md` que contém uma única linha:
 
 ```markdown
 @AGENTS.md
 ```
 
-`CLAUDE.md` is the file Claude Code loads at the start of every session; the `@AGENTS.md` line pulls the house rules in. The rules themselves stay in `AGENTS.md`, a plain file other agent tools can read too. Every role built in Module 2 gets this context as well, automatically.
+`CLAUDE.md` é o arquivo que o Claude Code carrega no início de toda sessão; a linha `@AGENTS.md` puxa as regras da casa para dentro. As regras em si ficam no `AGENTS.md`, um arquivo simples que outras ferramentas de agentes também conseguem ler. Todo papel construído no Módulo 2 também recebe esse contexto, automaticamente.
 
-**Minimum content, regardless of domain:**
+**Conteúdo mínimo, seja qual for o domínio:**
 
 ```
-1. Stack & Tools        : What's being worked with? (Tools, systems, formats)
-2. Conventions          : Naming, structure, language
-3. Hard Rules           : What must NEVER happen
-4. Workflow             : What order work happens in
-5. Scope                : What's IN this system, what's OUT
+1. Stack e ferramentas  : Com o que se trabalha? (Ferramentas, sistemas, formatos)
+2. Convenções           : Nomes, estrutura, língua
+3. Regras rígidas       : O que NUNCA pode acontecer
+4. Fluxo de trabalho    : Em que ordem o trabalho acontece
+5. Escopo               : O que está DENTRO deste sistema, o que está FORA
 ```
 
-**What does NOT belong here:**
-- Anything that changes per task (belongs in the task prompt)
-- Large files or full lists (belong in Tools/MCP, Module 3)
-- Explanations for human readers (that's documentation, not agent context)
+**O que NÃO pertence aqui:**
+- Tudo o que muda a cada tarefa (pertence ao prompt da tarefa)
+- Arquivos grandes ou listas completas (pertencem a Ferramentas/MCP, Módulo 3)
+- Explicações para leitores humanos (isso é documentação, não contexto de agente)
 
-## The Signal-to-Noise Ratio
+## A relação sinal-ruído
 
-The single most important concept in Context Engineering.
+O conceito mais importante de toda a engenharia de contexto.
 
-Bad context: 80% noise, 20% signal. The agent produces mediocre results.
-Good context: 80% signal, 20% structure. The agent produces consistent, high-quality results.
+Contexto ruim: 80% ruído, 20% sinal. O agente produz resultados medíocres.
+Contexto bom: 80% sinal, 20% estrutura. O agente produz resultados consistentes e de alta qualidade.
 
-**Recognizing noise:** anything the agent doesn't need to complete *this* task.
+**Reconhecendo o ruído:** tudo de que o agente não precisa para concluir *esta* tarefa.
 
-## Questions For You
+## Perguntas para a pessoa
 
-**Your field** (deepen here if not already answered in the intake):
-- What's the source of truth?
-- What categories/building blocks exist?
-- What naming convention?
-- What language for comments/docs?
+**O seu domínio** (aprofunde aqui se ainda não foi respondido no intake):
+- Qual é a fonte da verdade?
+- Que categorias/blocos existem?
+- Que convenção de nomes?
+- Que língua para comentários/documentação?
 
-**Your rules:**
-- What must an agent NEVER do?
-- What's the order? (What comes first, what comes after?)
+**As suas regras:**
+- O que um agente NUNCA deve fazer?
+- Qual é a ordem? (O que vem primeiro, o que vem depois?)
 
-**Your scope:**
-- What belongs to this harness?
-- What's DELIBERATELY outside it?
+**O seu escopo:**
+- O que pertence a este harness?
+- O que fica DELIBERADAMENTE de fora?
 
-## What Gets Built
+## O que é construído
 
-- `AGENTS.md` at the project root, following the format above, filled with the answers from the intake and this module
-- `CLAUDE.md` at the project root, containing `@AGENTS.md`
+- `AGENTS.md` na raiz do projeto, no formato acima, preenchido com as respostas do intake e deste módulo
+- `CLAUDE.md` na raiz do projeto, contendo `@AGENTS.md`
 
-## Notes For Running This
+## Notas de condução
 
-- If the project already has an `AGENTS.md` or `CLAUDE.md`, don't overwrite it. Show the person what's there, add the harness rules as their own section, and add the `@AGENTS.md` line to the existing `CLAUDE.md` if it's missing.
-- To confirm it loads: in a new session, `/context` lists `CLAUDE.md` under memory files.
-- After the first draft, go through it line by line together and ask "signal or noise?" That's the signal check from the lesson; don't skip it.
-- If a rule is too vague ("deliver good quality"), ask for a concrete counter-example. What would bad quality look like, specifically?
-- This file is the foundation; everything in the following modules builds on it. Shorter and sharp beats long and vague.
+- Se o projeto já tem um `AGENTS.md` ou `CLAUDE.md`, não o sobrescreva. Mostre à pessoa o que existe, acrescente as regras do harness como uma seção própria e adicione a linha `@AGENTS.md` ao `CLAUDE.md` existente se ela estiver faltando.
+- Para confirmar que ele carrega: numa sessão nova, `/context` lista o `CLAUDE.md` entre os arquivos de memória.
+- Depois do primeiro rascunho, percorra-o linha por linha junto com a pessoa e pergunte "sinal ou ruído?". Essa é a checagem de sinal da lição; não a pule.
+- Se uma regra for vaga demais ("entregar boa qualidade"), peça um contraexemplo concreto. Como seria, especificamente, uma qualidade ruim?
+- Este arquivo é o alicerce; tudo nos módulos seguintes se apoia nele. Curto e afiado é melhor que longo e vago.

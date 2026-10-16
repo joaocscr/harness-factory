@@ -1,183 +1,183 @@
-# Module 4: Multi-Agent Design
+# Módulo 4: Design multi-agente
 
-## Core Idea
+## Ideia central
 
-There are now several specialized roles. Each knows what it does and what it doesn't do.
+Agora existem vários papéis especializados. Cada um sabe o que faz e o que não faz.
 
-But who starts? Who hands what off to whom? What happens when a role is done: does the next one start automatically, or does someone have to kick it off?
+Mas quem começa? Quem passa o quê para quem? O que acontece quando um papel termina: o próximo começa automaticamente, ou alguém precisa dar a partida?
 
-That's Multi-Agent Design: **the order, the handoffs, and the rules that determine who's up next.**
+Isso é design multi-agente: **a ordem, os handoffs e as regras que determinam quem é o próximo.**
 
-## The Factory Analogy
+## A analogia da fábrica
 
-Picture an assembly line:
-
-```
-Raw material → Station 1 → Station 2 → Quality control → Finished product
-```
-
-Each station has one job. No station starts before the previous one is done. Quality control usually happens at the end of a station, not somewhere in the middle where it can get forgotten.
-
-The harness works the same way. The question is: what does this assembly line look like for this field?
-
-## The Two Basic Patterns
-
-**1. Sequence: one after another**
-```
-Role A → Role B → Role C
-```
-Each role waits for the output of the previous one. Simple, predictable, easy to debug. Downside: slow if tasks are actually independent of each other.
-
-**2. Parallel: several at once**
-```
-Role A ──┐
-         ├── Reviewer
-Role B ──┘
-```
-Several roles work at the same time, the reviewer checks what they hand back. Faster, but more complex; handoffs need to be precisely defined.
-
-**For a start:** sequence is almost always the right entry point. Parallel comes once the rhythm is known.
-
-## Deriving Your Own Assembly Line
-
-From the roles in Module 2, a pattern like this usually emerges:
+Imagine uma linha de montagem:
 
 ```
-1. Creator role 1
+Matéria-prima → Estação 1 → Estação 2 → Controle de qualidade → Produto acabado
+```
+
+Cada estação tem uma tarefa. Nenhuma estação começa antes de a anterior terminar. O controle de qualidade normalmente acontece no fim de uma estação, não em algum ponto no meio, onde pode ser esquecido.
+
+O harness funciona do mesmo jeito. A pergunta é: como é essa linha de montagem neste domínio?
+
+## Os dois padrões básicos
+
+**1. Sequência: um depois do outro**
+```
+Papel A → Papel B → Papel C
+```
+Cada papel espera a saída do anterior. Simples, previsível, fácil de depurar. Desvantagem: lento se as tarefas forem, na verdade, independentes entre si.
+
+**2. Paralelo: vários ao mesmo tempo**
+```
+Papel A ──┐
+          ├── Revisor
+Papel B ──┘
+```
+Vários papéis trabalham ao mesmo tempo, e o revisor confere o que eles devolvem. Mais rápido, porém mais complexo; os handoffs precisam ser definidos com precisão.
+
+**Para começar:** a sequência é quase sempre a porta de entrada certa. O paralelo vem quando o ritmo já é conhecido.
+
+## Derivando a sua própria linha de montagem
+
+A partir dos papéis do Módulo 2, normalmente surge um padrão como este:
+
+```
+1. Papel criador 1
       ↓
-2. Reviewer          ← first quality check
-      ↓ (only if PASS)
-3. Creator role 2 (if applicable)
+2. Revisor           ← primeira checagem de qualidade
+      ↓ (só se PASS)
+3. Papel criador 2 (se aplicável)
       ↓
-4. Reviewer          ← second quality check
-      ↓ (only if PASS)
-5. Documentation/output role (if applicable)
+4. Revisor           ← segunda checagem de qualidade
+      ↓ (só se PASS)
+5. Papel de documentação/saída (se aplicável)
       ↓
-6. Context/memory role   ← usually last, keeps the persistent context up to date
+6. Papel de contexto/memória   ← geralmente o último, mantém o contexto persistente atualizado
 ```
 
-The reviewer often shows up more than once, once after each creator role. That's not a mistake, it's intentional: catching errors early is cheaper than catching them late.
+O revisor muitas vezes aparece mais de uma vez, uma depois de cada papel criador. Isso não é erro, é intencional: pegar erros cedo é mais barato que pegá-los tarde.
 
-This is a pattern, not a fixed rule. The real order emerges from the conversation with the person, not from this template.
+Isto é um padrão, não uma regra fixa. A ordem real surge da conversa com a pessoa, não deste modelo.
 
-## Handoffs: the Handover Between Roles
+## Handoffs: a passagem entre papéis
 
-A handoff is the moment a role is done and the next one starts.
+Um handoff é o momento em que um papel termina e o próximo começa.
 
-A good handoff defines:
-- **What gets handed over**: which files/data, what format
-- **What the next role does first**, so it doesn't have to guess
-- **What happens if something's missing**: the role asks, it doesn't guess
+Um bom handoff define:
+- **O que é passado adiante**: quais arquivos/dados, em que formato
+- **O que o próximo papel faz primeiro**, para que ele não precise adivinhar
+- **O que acontece se algo estiver faltando**: o papel pergunta, não adivinha
 
-Bad:
+Ruim:
 ```
-Role A: "Here's the result."
-Role B: [guesses what's meant]
-```
-
-Good:
-```
-Role A output:
-- Changed/new artifacts: [concrete list]
-- Reviewer gave PASS on: [date]
-→ Role B can start
+Papel A: "Aqui está o resultado."
+Papel B: [adivinha o que se quis dizer]
 ```
 
-### Handoffs Are Files
+Bom:
+```
+Saída do Papel A:
+- Artefatos alterados/novos: [lista concreta]
+- Revisor deu PASS em: [data]
+→ O Papel B pode começar
+```
 
-Each role runs in its own context (Module 2). Role B never saw what Role A thought or said; it only knows what it's handed. So the handoff has to exist as a file:
+### Handoffs são arquivos
+
+Cada papel roda no seu próprio contexto (Módulo 2). O Papel B nunca viu o que o Papel A pensou ou disse; ele só sabe o que lhe é entregue. Por isso o handoff tem de existir como arquivo:
 
 ```
-harness/handoffs/<task>/
-  01-<role-a>.md       ← what Role A produced and where it is
-  02-reviewer.md       ← VERDICT: PASS / FAIL plus reasons
-  03-<role-b>.md
+harness/handoffs/<tarefa>/
+  01-<papel-a>.md      ← o que o Papel A produziu e onde está
+  02-reviewer.md       ← VERDICT: PASS / FAIL mais as razões
+  03-<papel-b>.md
   04-reviewer.md
 ```
 
-The numbers simply count up. If the reviewer says FAIL, the corrected attempt and its review become the next two files; nothing gets overwritten.
+Os números simplesmente vão subindo. Se o revisor disser FAIL, a tentativa corrigida e a revisão dela viram os dois arquivos seguintes; nada é sobrescrito.
 
-Every role ends its work with a short handoff note as its reply. The pipeline saves that note as the next numbered file and gives the following role the path. That includes the reviewer: it can't write files (Module 2), so it replies with its verdict and the pipeline writes it down.
+Todo papel encerra o trabalho com uma nota curta de handoff como resposta. O pipeline salva essa nota como o próximo arquivo numerado e passa o caminho ao papel seguinte. Isso vale também para o revisor: ele não pode gravar arquivos (Módulo 2), então responde com o veredito e o pipeline o registra.
 
-The folder doubles as a record of what happened on a task, which Module 7 builds on.
+A pasta serve também de registro do que aconteceu numa tarefa, e o Módulo 7 se apoia nisso.
 
-## What If a Role Gets FAIL?
+## E se um papel receber FAIL?
 
 ```
-Reviewer: FAIL
-  ❌ [concrete reason]
+Revisor: FAIL
+  ❌ [razão concreta]
 
-The creator role gets the feedback:
-  → Corrects
-  → Sends back to reviewer
+O papel criador recebe o retorno:
+  → Corrige
+  → Devolve ao revisor
 
-Reviewer: PASS
-  → Next role can start
+Revisor: PASS
+  → O próximo papel pode começar
 ```
 
-That's a **feedback loop**: the harness corrects itself without constant intervention. That's the core of agentic engineering.
+Isso é um **ciclo de retorno**: o harness se corrige sem intervenção constante. Esse é o núcleo da engenharia agêntica.
 
-A loop needs an exit. After a fixed number of failed correction attempts, the pipeline stops and hands the task to the human, with the reviewer's last reasons attached. Without that limit, two roles can argue forever on your bill.
+Um ciclo precisa de uma saída. Depois de um número fixo de tentativas de correção fracassadas, o pipeline para e entrega a tarefa ao humano, com as últimas razões do revisor anexadas. Sem esse limite, dois papéis podem discutir para sempre na sua conta.
 
-## The Pipeline Skill
+## A skill de pipeline
 
-For all of this to work, someone needs to start the line and call the roles in order. That's the **pipeline skill**: a skill that runs in the main conversation and hands each step to the right role.
+Para tudo isso funcionar, alguém precisa dar a partida na linha e chamar os papéis em ordem. Essa é a **skill de pipeline**: uma skill que roda na conversa principal e entrega cada etapa ao papel certo.
 
 ```markdown
 ---
-name: <pipeline-name>
-description: Runs the <pipeline-name> assembly line for one task.
-argument-hint: [task description]
+name: <nome-do-pipeline>
+description: Roda a linha de montagem <nome-do-pipeline> para uma tarefa.
+argument-hint: [descrição da tarefa]
 disable-model-invocation: true
 ---
 
-Task: $ARGUMENTS
+Tarefa: $ARGUMENTS
 
-Run these steps in order. Use the named subagent for each step; don't do a role's work yourself.
+Execute estas etapas em ordem. Use o subagente indicado em cada etapa; não faça você mesmo o trabalho de um papel.
 
-1. Create `harness/handoffs/<task-slug>/`. Save every reply there as the next
-   numbered file (`01-<role>.md`, `02-<role>.md`, ...), correction rounds included.
-2. Call `<role-a>` with the task. Save its reply.
-3. Call `reviewer` with the path to that file. Save its reply.
-   - `VERDICT: FAIL`: call `<role-a>` again with the path to the reviewer's file, then the reviewer again. After <N> failed attempts, stop and report to the person.
+1. Crie `harness/handoffs/<slug-da-tarefa>/`. Salve ali cada resposta como o próximo
+   arquivo numerado (`01-<papel>.md`, `02-<papel>.md`, ...), rodadas de correção incluídas.
+2. Chame `<papel-a>` com a tarefa. Salve a resposta.
+3. Chame `reviewer` com o caminho desse arquivo. Salve a resposta.
+   - `VERDICT: FAIL`: chame `<papel-a>` de novo com o caminho do arquivo do revisor, depois o revisor de novo. Depois de <N> tentativas fracassadas, pare e reporte à pessoa.
    - `VERDICT: PASS`: continue.
-4. Call `<role-b>` with the path to `<role-a>`'s last handoff. ...
+4. Chame `<papel-b>` com o caminho do último handoff de `<papel-a>`. ...
 ```
 
-The person starts it with one line:
+A pessoa dá a partida com uma linha:
 
 ```
-/<pipeline-name> <concrete description of the task>
+/<nome-do-pipeline> <descrição concreta da tarefa>
 ```
 
-`disable-model-invocation: true` means the line only starts when the person types that command, never on Claude's own initiative. `$ARGUMENTS` is replaced by whatever follows the command.
+`disable-model-invocation: true` significa que a linha só começa quando a pessoa digita esse comando, nunca por iniciativa do próprio Claude. `$ARGUMENTS` é substituído pelo que vier depois do comando.
 
-Why a skill and not another role? The pipeline is a procedure for the main conversation to follow (Module 2: a skill adds knowledge to the current context). The main conversation is also the one place that sees every handoff, which is what lets it decide who's up next.
+Por que uma skill e não mais um papel? O pipeline é um procedimento a ser seguido pela conversa principal (Módulo 2: uma skill acrescenta conhecimento ao contexto atual). A conversa principal é também o único lugar que vê todos os handoffs, e é isso que lhe permite decidir quem é o próximo.
 
-## Questions For You
+## Perguntas para a pessoa
 
-- Does the pattern above hold for this field, or does the order look different?
-- Are there special cases? (Just one partial step without the others, exception workflows …)
-- What happens on FAIL: how many correction attempts before a human steps in?
-- What exactly gets passed on at each handoff?
+- O padrão acima vale para este domínio, ou a ordem é diferente?
+- Há casos especiais? (Só uma etapa parcial sem as outras, fluxos de exceção …)
+- O que acontece no FAIL: quantas tentativas de correção antes de um humano intervir?
+- O que exatamente é passado adiante em cada handoff?
 
-## What Gets Built
+## O que é construído
 
-*(Adapted for the portable-method layout — see the main SKILL.md of `construir` for the full target structure.)*
+*(Adaptado para o layout de método portável — veja o SKILL.md principal de `construir` para a estrutura-alvo completa.)*
 
-- `metodo/skills/<pipeline-name>.md`: the full assembly line with handoffs and the FAIL limit — this is the portable method document, independent of Claude Code. Mandatory steps (intake, deterministic checks, independent review, human approval) are marked **[obrigatória — nunca pular]**.
-- `.claude/skills/<pipeline-name>/SKILL.md`: a thin wrapper (frontmatter + "read and follow `metodo/skills/<pipeline-name>.md`"), started with `/<pipeline-name> <task>`. The wrapper references the method; the method never references the wrapper.
-- `_trabalho/handoffs/.gitkeep`: the folder the pipeline writes handoff files into (runtime artifacts, not method).
-- Each role file's Output section, updated so the role ends with the handoff note the next step expects.
-- The pipeline must include an independent reviewer step that runs in a clean context (a role that did not see the production), and an explicit human approval point before delivery.
+- `metodo/skills/<nome-do-pipeline>.md`: a linha de montagem completa, com handoffs e o limite de FAIL — este é o documento de método portável, independente do Claude Code. As etapas obrigatórias (intake, checagens determinísticas, revisão independente, aprovação humana) são marcadas **[obrigatória — nunca pular]**.
+- `.claude/skills/<nome-do-pipeline>/SKILL.md`: um wrapper fino (frontmatter + "leia e siga `metodo/skills/<nome-do-pipeline>.md`"), iniciado com `/<nome-do-pipeline> <tarefa>`. O wrapper referencia o método; o método nunca referencia o wrapper.
+- `_trabalho/handoffs/.gitkeep`: a pasta onde o pipeline grava os arquivos de handoff (artefatos de execução, não método).
+- A seção Saída de cada arquivo de papel, atualizada para que o papel termine com a nota de handoff que a próxima etapa espera.
+- O pipeline precisa incluir uma etapa de revisor independente que roda em contexto limpo (um papel que não viu a produção) e um ponto explícito de aprovação humana antes da entrega.
 
-## Notes For Running This
+## Notas de condução
 
-- The pipeline skill calls the roles; roles never call each other. Keep every step in the skill, even if nesting would look tidier.
-- Don't add `context: fork` to the pipeline skill. It has to run in the main conversation to call the roles one after another.
-- A special case from the questions (e.g. "just one partial step") becomes its own small pipeline skill, not a branch inside the main one.
-- If `.claude/skills/` didn't exist before this module, tell the person to run `/reload-skills` or start a new session before trying `/<pipeline-name>`.
-- Ask whether handoff files should be committed. Default: yes, they're the audit trail. If tasks contain sensitive content, add `_trabalho/handoffs/` to `.gitignore` instead.
-- Once the files exist, offer one real test run with the example task from the intake. A pipeline that has never run isn't done.
-- Start with sequence, even if parallel feels tempting. Debuggability matters more than speed at the start.
-- If the reviewer only shows up once, right at the end, ask whether an earlier check wouldn't pay off. It usually does.
+- A skill de pipeline chama os papéis; papéis nunca chamam uns aos outros. Mantenha todas as etapas na skill, mesmo que aninhar pareça mais arrumado.
+- Não adicione `context: fork` à skill de pipeline. Ela precisa rodar na conversa principal para chamar os papéis um depois do outro.
+- Um caso especial vindo das perguntas (ex.: "só uma etapa parcial") vira uma pequena skill de pipeline própria, não um desvio dentro da principal.
+- Se `.claude/skills/` não existia antes deste módulo, diga à pessoa para rodar `/reload-skills` ou abrir uma sessão nova antes de tentar `/<nome-do-pipeline>`.
+- Pergunte se os arquivos de handoff devem entrar nos commits. Padrão: sim, eles são a trilha de auditoria. Se as tarefas tiverem conteúdo sensível, adicione `_trabalho/handoffs/` ao `.gitignore` em vez disso.
+- Quando os arquivos existirem, ofereça uma execução de teste real com a tarefa de exemplo do intake. Um pipeline que nunca rodou não está pronto.
+- Comece pela sequência, mesmo que o paralelo seja tentador. No início, a facilidade de depurar importa mais que a velocidade.
+- Se o revisor aparecer só uma vez, bem no fim, pergunte se uma checagem mais cedo não compensaria. Geralmente compensa.

@@ -1,66 +1,66 @@
-# Module 5: Hooks & Guards
+# Módulo 5: Hooks e guardas
 
-## Core Idea
+## Ideia central
 
-There's now an assembly line with specialized roles, clear handoffs, and a reviewer.
+Agora existe uma linha de montagem com papéis especializados, handoffs claros e um revisor.
 
-But agents forget sometimes, without meaning to. A step gets skipped. A check gets left out. A follow-up action doesn't get triggered because nobody happened to think of it in that moment.
+Mas agentes às vezes esquecem, sem querer. Uma etapa é pulada. Uma checagem fica de fora. Uma ação de acompanhamento não é disparada porque ninguém pensou nela naquele momento.
 
-**Hooks solve that.** They're deterministic code that automatically runs at certain points, regardless of whether a role remembered to do it.
+**Hooks resolvem isso.** São código determinístico que roda automaticamente em certos pontos, independentemente de um papel ter se lembrado de fazê-lo.
 
-A hook has no intelligence and never forgets. It simply enforces a rule, every time.
+Um hook não tem inteligência e nunca esquece. Ele simplesmente aplica uma regra, toda vez.
 
-## The Analogy: Bouncer vs. Consultant
+## A analogia: segurança da porta vs. consultor
 
-A role (agent) is like a consultant: it thinks along, gives recommendations, makes decisions.
+Um papel (agente) é como um consultor: pensa junto, dá recomendações, toma decisões.
 
-A hook is like a bouncer: it checks a single rule and either lets you through or not. No discussion, no exceptions.
-
-```
-Agent:  "I finished X and I think Y is up to date too."
-Hook:   [checks automatically] "Y was not changed. STOP."
-```
-
-The hook always wins in that moment, because it has no opinion, only a rule.
-
-## Pre-Hooks vs. Post-Hooks
-
-**Pre-hook:** runs *before* an action happens, preventing something wrong from being executed.
-**Post-hook:** runs *after* an action happens, making sure the result is correct and triggering follow-up actions.
+Um hook é como o segurança da porta: confere uma única regra e deixa passar ou não. Sem discussão, sem exceções.
 
 ```
-Pre-hook  →  [role's action]  →  Post-hook
+Agente: "Terminei X e acho que Y também está atualizado."
+Hook:   [confere automaticamente] "Y não foi alterado. PARE."
 ```
 
-## Deriving Hooks From Hard Rules
+Naquele momento o hook sempre vence, porque não tem opinião, só uma regra.
 
-A hook comes from asking Module 1 (hard rules) and Module 4 (handoffs) one question: **can a role forget this? If yes, hook.**
+## Pré-hooks vs. pós-hooks
 
-Six patterns that show up in almost every field. The concrete implementation follows from the intake, not from this list:
+**Pré-hook:** roda *antes* de uma ação acontecer, impedindo que algo errado seja executado.
+**Pós-hook:** roda *depois* de uma ação acontecer, garantindo que o resultado está correto e disparando ações de acompanhamento.
 
-**1. Format/rule check (pre)**
-Does the output break a hard rule from `AGENTS.md`? (Analogous to: no hardcoded values)
+```
+Pré-hook  →  [ação do papel]  →  Pós-hook
+```
 
-**2. Reference-existence check (pre)**
-Does a role reference something that doesn't exist yet? (Analogous to: referenced token doesn't exist)
+## Derivando hooks das regras rígidas
 
-**3. Breaking-change check (pre)**
-Does a role change or delete something others already consume? (Analogous to: public-API change without a migration order)
+Um hook nasce de fazer uma pergunta ao Módulo 1 (regras rígidas) e ao Módulo 4 (handoffs): **um papel pode esquecer isto? Se sim, hook.**
 
-**4. Auto-sync hook (post)**
-Does something else need to be automatically updated after this change? (Analogous to: re-sync the context layer after every change)
+Seis padrões que aparecem em quase todo domínio. A implementação concreta decorre do intake, não desta lista:
 
-**5. Quality-threshold check (post)**
-Is there a measurable quality bar that must be checked every single time? (Analogous to: contrast check against WCAG)
+**1. Checagem de formato/regra (pré)**
+A saída viola uma regra rígida do `AGENTS.md`? (Análogo a: nada de valores fixos no código)
 
-**6. Completeness check (post)**
-Is the output complete relative to what it's supposed to cover? (Analogous to: missing documentation stories)
+**2. Checagem de existência de referência (pré)**
+Um papel referencia algo que ainda não existe? (Análogo a: token referenciado não existe)
 
-Not every field needs all six. Some need only two, plus one that isn't on this list; that's fine.
+**3. Checagem de mudança incompatível (pré)**
+Um papel altera ou apaga algo que outros já consomem? (Análogo a: mudança de API pública sem ordem de migração)
 
-## How Hooks Work in Claude Code
+**4. Hook de sincronização automática (pós)**
+Algo mais precisa ser atualizado automaticamente depois desta mudança? (Análogo a: ressincronizar a camada de contexto depois de toda mudança)
 
-Claude Code supports hooks via `settings.json`. Hooks are shell commands or scripts that Claude Code runs automatically on certain events.
+**5. Checagem de patamar de qualidade (pós)**
+Existe um padrão mensurável de qualidade que precisa ser conferido toda vez? (Análogo a: checagem de contraste segundo a WCAG)
+
+**6. Checagem de completude (pós)**
+A saída está completa em relação ao que deveria cobrir? (Análogo a: histórias de documentação faltando)
+
+Nem todo domínio precisa dos seis. Alguns precisam só de dois, mais um que não está nesta lista; tudo bem.
+
+## Como os hooks funcionam no Claude Code
+
+O Claude Code suporta hooks via `settings.json`. Hooks são comandos de shell ou scripts que o Claude Code executa automaticamente em certos eventos.
 
 ```json
 // .claude/settings.json
@@ -70,7 +70,7 @@ Claude Code supports hooks via `settings.json`. Hooks are shell commands or scri
       {
         "matcher": "Write|Edit",
         "hooks": [
-          { "type": "command", "command": "node \"${CLAUDE_PROJECT_DIR}/harness/hooks/<check-name>.js\"" }
+          { "type": "command", "command": "node \"${CLAUDE_PROJECT_DIR}/harness/hooks/<nome-da-checagem>.js\"" }
         ]
       }
     ]
@@ -78,46 +78,46 @@ Claude Code supports hooks via `settings.json`. Hooks are shell commands or scri
 }
 ```
 
-So a hook is a script that runs on a specific event. The script itself is plain code, no AI, no agent.
+Ou seja, um hook é um script que roda num evento específico. O script em si é código comum, sem IA, sem agente.
 
-- `PreToolUse` is the pre-hook: it runs before a tool is used and can stop it. `PostToolUse` is the post-hook: the action has already happened, so the script can only report back or trigger a follow-up.
-- `matcher` says which tools the hook watches. `Write|Edit` covers both ways a role can change a file; `Write` alone misses every edit to an existing file.
-- The script receives the details of the action (which tool, which file, which role) and answers with allow or block plus a reason. The role sees that reason and can correct itself.
+- `PreToolUse` é o pré-hook: roda antes de uma ferramenta ser usada e pode impedi-la. `PostToolUse` é o pós-hook: a ação já aconteceu, então o script só pode relatar ou disparar uma ação de acompanhamento.
+- `matcher` diz quais ferramentas o hook observa. `Write|Edit` cobre as duas formas de um papel alterar um arquivo; `Write` sozinho deixa passar toda edição num arquivo existente.
+- O script recebe os detalhes da ação (qual ferramenta, qual arquivo, qual papel) e responde com permitir ou bloquear, mais uma razão. O papel vê essa razão e pode se corrigir.
 
-Hooks apply to every role automatically, the reviewer and all creator roles included. That's the difference to the `tools` list from Module 3: `tools` decides what a role can touch at all, hooks check what it does with it.
+Hooks valem automaticamente para todo papel, inclusive o revisor e todos os papéis criadores. Essa é a diferença em relação à lista `tools` do Módulo 3: `tools` decide o que um papel pode tocar, para começo de conversa; hooks conferem o que ele faz com isso.
 
-## Hooks vs. Reviewer: the Difference
+## Hooks vs. revisor: a diferença
 
-| | Reviewer (agent) | Hook |
+| | Revisor (agente) | Hook |
 |---|---|---|
-| Type | AI agent | Deterministic code |
-| Decides on | Quality, context, completeness | A single rule |
-| Can forget | Yes (rarely) | No, never |
-| Can discuss | Yes | No |
-| Costs tokens | Yes | No |
-| When | As a step in the pipeline | Automatically on every trigger |
+| Tipo | Agente de IA | Código determinístico |
+| Decide sobre | Qualidade, contexto, completude | Uma única regra |
+| Pode esquecer | Sim (raramente) | Não, nunca |
+| Pode discutir | Sim | Não |
+| Custa tokens | Sim | Não |
+| Quando | Como uma etapa do pipeline | Automaticamente, a cada gatilho |
 
-Hooks and reviewer complement each other: the hook catches mechanical mistakes, the reviewer judges quality.
+Hooks e revisor se complementam: o hook pega erros mecânicos, o revisor julga a qualidade.
 
-## Questions For You
+## Perguntas para a pessoa
 
-- What rule must never be broken under any circumstances? (This is almost always the first hook worth building)
-- Where has a forgotten step caused the most pain in the past, even without AI?
-- Which of the six patterns above fits this field, and which doesn't?
+- Que regra nunca pode ser quebrada, em nenhuma circunstância? (Esse é quase sempre o primeiro hook que vale construir)
+- Onde uma etapa esquecida causou mais dor no passado, mesmo sem IA?
+- Quais dos seis padrões acima servem para este domínio, e quais não?
 
-## What Gets Built
+## O que é construído
 
-*(Adapted for the portable-method layout.)*
+*(Adaptado para o layout de método portável.)*
 
-- One script per hook, under `metodo/checagens/hooks/`, e.g. `metodo/checagens/hooks/<check-name>.py` — Python (preferred) or PowerShell; never plain bash without a Windows alternative.
-- The wiring into `.claude/settings.json`, so the hooks actually run automatically. That file is the single place that says which hook runs when — and it always carries the standing deny rules that keep production agents out of `metodo/evals/gabaritos/`.
-- This module is run through the `guardas` skill of this plugin: it elicits the rules in the person's own domain language and translates them into hooks.
+- Um script por hook, em `metodo/checagens/hooks/`, ex.: `metodo/checagens/hooks/<nome-da-checagem>.py` — Python (preferido) ou PowerShell; nunca bash puro sem alternativa Windows.
+- A ligação no `.claude/settings.json`, para que os hooks rodem de fato automaticamente. Esse arquivo é o único lugar que diz qual hook roda quando — e ele sempre carrega as regras de negação permanentes que mantêm os agentes de produção fora de `metodo/evals/gabaritos/`.
+- Este módulo é conduzido pelo skill `guardas` deste plugin: ele levanta as regras na própria linguagem de domínio da pessoa e as traduz em hooks.
 
-## Notes For Running This
+## Notas de condução
 
-- If `.claude/settings.json` already exists, merge the new entry into it and keep everything else. Show the person the result before writing.
-- Ask which script runtime is installed (Node, Python, plain shell) and write the hook in that. A hook in a language the machine can't run fails silently.
-- Before writing the first script, check the current hook input and output format in the Claude Code docs. Test each hook once with an action that should be blocked and once with one that shouldn't.
-- Settings changes are picked up without a restart. `/hooks` shows what's active.
-- Start with the one hook that covers the most expensive past failure mode, not all six patterns at once.
-- A hook that never triggers isn't a problem. A hook that triggers constantly is a signal of a context problem back in Module 1 or 2 (house rules or a role file), not primarily a hook problem.
+- Se o `.claude/settings.json` já existir, mescle a nova entrada nele e mantenha todo o resto. Mostre o resultado à pessoa antes de gravar.
+- Pergunte qual runtime de script está instalado (Node, Python, shell puro) e escreva o hook nele. Um hook numa linguagem que a máquina não consegue executar falha em silêncio.
+- Antes de escrever o primeiro script, confira o formato atual de entrada e saída de hooks na documentação do Claude Code. Teste cada hook uma vez com uma ação que deveria ser bloqueada e uma vez com uma que não deveria.
+- Mudanças em settings passam a valer sem reiniciar. `/hooks` mostra o que está ativo.
+- Comece pelo hook que cobre o modo de falha passado mais caro, não pelos seis padrões de uma vez.
+- Um hook que nunca dispara não é problema. Um hook que dispara o tempo todo é sinal de um problema de contexto lá no Módulo 1 ou 2 (regras da casa ou um arquivo de papel), não primariamente um problema de hook.

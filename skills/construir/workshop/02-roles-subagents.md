@@ -1,134 +1,134 @@
-# Module 2: Roles & Subagents
+# Módulo 2: Papéis e subagentes
 
-## Core Idea
+## Ideia central
 
-There's now an `AGENTS.md`, the house rules for all agents. But the work in this field usually consists of several distinct tasks that require different kinds of thinking.
+Agora existe um `AGENTS.md`, as regras da casa para todos os agentes. Mas o trabalho neste domínio geralmente consiste em várias tarefas distintas que exigem tipos diferentes de raciocínio.
 
-If a single agent is responsible for everything, this happens:
-- It loses focus
-- Its instructions become huge and contradictory
-- It does mediocre work on everything instead of excellent work on one thing
+Se um único agente for responsável por tudo, acontece isto:
+- Ele perde o foco
+- As instruções dele ficam enormes e contraditórias
+- Ele faz um trabalho medíocre em tudo, em vez de um trabalho excelente em uma coisa
 
-The solution: **specialization through roles**, each one its own subagent.
+A solução: **especialização por papéis**, cada um sendo seu próprio subagente.
 
-## What a Role File Is
+## O que é um arquivo de papel
 
-A role file is a markdown file that defines one subagent. It tells that agent:
-- Who it is (role, perspective)
-- What its one job is
-- How it approaches that job (step by step)
-- What it outputs (format, structure)
-- What it explicitly does NOT do (this matters just as much)
+Um arquivo de papel é um arquivo markdown que define um subagente. Ele diz a esse agente:
+- Quem ele é (papel, perspectiva)
+- Qual é a sua única tarefa
+- Como ele aborda essa tarefa (passo a passo)
+- O que ele entrega (formato, estrutura)
+- O que ele explicitamente NÃO faz (isso importa tanto quanto o resto)
 
-Think of it as a **precise assignment for a role**, not a manual.
+Pense nele como uma **atribuição precisa para um papel**, não como um manual.
 
-## Role or Skill: the Difference
+## Papel ou skill: a diferença
 
-Both are markdown files, and they're easy to mix up.
+Os dois são arquivos markdown, e é fácil confundi-los.
 
-| | Skill | Role (subagent) |
+| | Skill | Papel (subagente) |
 |---|---|---|
-| What it is | Knowledge or a procedure | A worker with one job |
-| Where it runs | In the conversation that's already going | In its own fresh context |
-| What it sees | Everything said so far | Only its assignment and the house rules |
-| Tools | The same as the conversation | Its own list |
-| Lives in | `.claude/skills/<name>/SKILL.md` | `.claude/agents/<name>.md` |
+| O que é | Conhecimento ou um procedimento | Um trabalhador com uma tarefa |
+| Onde roda | Na conversa que já está em andamento | No seu próprio contexto, limpo |
+| O que vê | Tudo o que foi dito até agora | Só a sua atribuição e as regras da casa |
+| Ferramentas | As mesmas da conversa | Lista própria |
+| Fica em | `.claude/skills/<nome>/SKILL.md` | `.claude/agents/<nome>.md` |
 
-Rule of thumb: a skill adds knowledge to the current context. A role gets a bounded task in its own context with its own tools.
+Regra prática: uma skill acrescenta conhecimento ao contexto atual. Um papel recebe uma tarefa delimitada, no seu próprio contexto, com suas próprias ferramentas.
 
-That separation is what makes a reviewer worth having. A reviewer that sits in the same conversation as the creator has already read all the creator's reasoning and tends to agree with it. A reviewer in its own context sees only the result.
+É essa separação que faz um revisor valer a pena. Um revisor que está na mesma conversa que o criador já leu todo o raciocínio do criador e tende a concordar com ele. Um revisor no seu próprio contexto vê só o resultado.
 
-The harness uses both: the roles from this module are subagents, and the assembly line that calls them (Module 4) is a skill.
+O harness usa os dois: os papéis deste módulo são subagentes, e a linha de montagem que os chama (Módulo 4) é uma skill.
 
-## The Analogy: Roles That Already Exist in the Field
+## A analogia: papéis que já existem no domínio
 
-Almost every field already has an informal division of roles, even without AI. That's the best template to draw from:
+Quase todo domínio já tem uma divisão informal de papéis, mesmo sem IA. Esse é o melhor modelo de onde partir:
 
-| Role Pattern | Focus | Doesn't Do |
+| Padrão de papel | Foco | Não faz |
 |---|---|---|
-| Creator role(s) | Produces/decides on the core artifact | Doesn't review itself |
-| Composer role (if applicable) | Builds something larger out of core artifacts | Doesn't invent new core artifacts |
-| Reviewer role | Checks against the rules from `AGENTS.md` | Doesn't build anything itself |
+| Papel(éis) criador(es) | Produz/decide o artefato central | Não revisa a si mesmo |
+| Papel compositor (se aplicável) | Constrói algo maior a partir de artefatos centrais | Não inventa novos artefatos centrais |
+| Papel revisor | Confere contra as regras do `AGENTS.md` | Não constrói nada ele mesmo |
 
-This table becomes concrete from the roles the person named in the intake. Don't invent a role nobody mentioned.
+Esta tabela se concretiza a partir dos papéis que a pessoa citou no intake. Não invente um papel que ninguém mencionou.
 
-This is exactly how specialized agents work: each one knows its area and respects the boundaries of the others.
+É exatamente assim que agentes especializados funcionam: cada um conhece a sua área e respeita os limites dos outros.
 
-## Anatomy of a Role File
+## Anatomia de um arquivo de papel
 
 ```markdown
 ---
-name: <role-name>
-description: When this role should be called, in one sentence.
+name: <nome-do-papel>
+description: Quando este papel deve ser chamado, em uma frase.
 tools: Read, Grep, Glob
 ---
 
-## Identity
-Who you are, in one sentence.
+## Identidade
+Quem você é, em uma frase.
 
-## Your One Job
-What you do, precise, not vague.
+## Sua única tarefa
+O que você faz, preciso, não vago.
 
-## Input
-What you get to work with.
+## Entrada
+Com o que você vai trabalhar.
 
-## Process
-Step by step, how you proceed.
+## Processo
+Passo a passo, como você procede.
 
-## Output
-What you produce: format, structure, language.
+## Saída
+O que você produz: formato, estrutura, língua.
 
-## Boundaries
-What you explicitly do NOT do.
+## Limites
+O que você explicitamente NÃO faz.
 ```
 
-The block between the `---` lines is what Claude Code reads to register the role:
-- `name`: lowercase, with hyphens. This is how the pipeline calls the role.
-- `description`: when to hand work to this role.
-- `tools`: the complete list of what this role may use. Anything not listed is unavailable to it. Module 3 fills this in properly; for now, start with `Read, Grep, Glob` (read-only).
+O bloco entre as linhas `---` é o que o Claude Code lê para registrar o papel:
+- `name`: minúsculas, com hífens. É assim que o pipeline chama o papel.
+- `description`: quando entregar trabalho a este papel.
+- `tools`: a lista completa do que este papel pode usar. O que não estiver listado fica indisponível para ele. O Módulo 3 preenche isso direito; por ora, comece com `Read, Grep, Glob` (somente leitura).
 
-Everything below the block is the role's assignment.
+Tudo abaixo do bloco é a atribuição do papel.
 
-## The Reviewer Can't Fix What It Finds
+## O revisor não pode consertar o que encontra
 
-The reviewer's `tools` list stays read-only: `Read, Grep, Glob`, with no `Write`, `Edit`, or `Bash`. A reviewer that can edit will quietly repair a problem instead of reporting it, and the creator role never learns.
+A lista `tools` do revisor continua somente leitura: `Read, Grep, Glob`, sem `Write`, `Edit` nem `Bash`. Um revisor que pode editar vai consertar um problema discretamente em vez de relatá-lo, e o papel criador nunca aprende.
 
-The reviewer's reply starts with the line `VERDICT: PASS` or `VERDICT: FAIL`, followed by the concrete reasons. Module 4 picks that up.
+A resposta do revisor começa com a linha `VERDICT: PASS` ou `VERDICT: FAIL`, seguida das razões concretas. O Módulo 4 retoma isso.
 
-## Important: Role Files Don't Repeat AGENTS.md
+## Importante: arquivos de papel não repetem o AGENTS.md
 
-Every role starts with the house rules already loaded, through the `CLAUDE.md` from Module 1. The role file doesn't need to repeat them; it builds on them.
+Todo papel começa com as regras da casa já carregadas, por meio do `CLAUDE.md` do Módulo 1. O arquivo de papel não precisa repeti-las; ele se apoia nelas.
 
-Bad:
+Ruim:
 ```
-## Identity
-[A rule that's already in AGENTS.md]  ← noise, duplicated
-```
-
-Good:
-```
-## Identity
-You operate within the rules from AGENTS.md.
-Your focus: [specific task]
+## Identidade
+[Uma regra que já está no AGENTS.md]  ← ruído, duplicado
 ```
 
-What a role does **not** start with: the conversation so far. Whatever it needs for the task has to arrive in its input. That's the subject of the handoffs in Module 4.
+Bom:
+```
+## Identidade
+Você opera dentro das regras do AGENTS.md.
+Seu foco: [tarefa específica]
+```
 
-## Questions For You
+Com o que um papel **não** começa: a conversa até ali. O que ele precisar para a tarefa tem de chegar na entrada dele. Esse é o assunto dos handoffs no Módulo 4.
 
-- What recurring roles/work steps exist in this field? (From the intake; concretize here, usually 2-4 roles plus one reviewer)
-- For each role: what's the concrete input it receives? What does it produce as output? Where does its responsibility end?
-- Does this actually need a separate reviewer role, or does each role check its own work well enough in this field? (A separate reviewer usually pays off, but not always; ask)
+## Perguntas para a pessoa
 
-## What Gets Built
+- Que papéis/etapas de trabalho recorrentes existem neste domínio? (Do intake; concretize aqui, geralmente 2-4 papéis mais um revisor)
+- Para cada papel: qual é a entrada concreta que ele recebe? O que ele produz como saída? Onde termina a responsabilidade dele?
+- Isto realmente precisa de um papel revisor separado, ou cada papel confere o próprio trabalho bem o bastante neste domínio? (Um revisor separado geralmente compensa, mas nem sempre; pergunte)
 
-One role file per identified role, under `.claude/agents/`, e.g. `.claude/agents/<role-name>.md`. Most harnesses end up with at least two creator roles plus a reviewer role, but the exact number follows from the intake, not from this template.
+## O que é construído
 
-## Notes For Running This
+Um arquivo de papel por papel identificado, em `.claude/agents/`, ex.: `.claude/agents/<nome-do-papel>.md`. A maioria dos harnesses termina com pelo menos dois papéis criadores mais um papel revisor, mas o número exato decorre do intake, não deste modelo.
 
-- Overlap check at the end: are there areas where two roles would overlap? Overlap is a signal that the boundaries aren't sharp enough yet. Sharpen them before calling the module done.
-- If the person names only one role ("I actually do all of this myself"), it's still worth asking: if you had to delegate this to three different people, how would you split it up? That often surfaces hidden roles.
-- Never put `Agent` in a role's `tools` list. Roles don't call other roles; only the pipeline does.
-- If `.claude/agents/` already has files, leave them alone and check for name clashes before writing.
-- If `.claude/agents/` didn't exist before this module, the roles only become available in a new session. Tell the person to restart Claude Code before Module 4; `CURRICULUM.md` picks up where they left off. Later edits to role files apply within a few seconds, no restart needed.
-- If a role needs the same lengthy procedure as another role, that shared procedure is a candidate for a skill of its own. Note it in `HANDOUT.md` instead of building it now.
+## Notas de condução
+
+- Checagem de sobreposição no final: há áreas em que dois papéis se sobreporiam? Sobreposição é sinal de que os limites ainda não estão nítidos o bastante. Afie-os antes de dar o módulo por concluído.
+- Se a pessoa citar um único papel ("na verdade eu faço tudo isso sozinho"), ainda vale perguntar: se você tivesse de delegar isto a três pessoas diferentes, como dividiria? Isso costuma revelar papéis escondidos.
+- Nunca coloque `Agent` na lista `tools` de um papel. Papéis não chamam outros papéis; só o pipeline faz isso.
+- Se `.claude/agents/` já tiver arquivos, deixe-os como estão e confira conflitos de nome antes de gravar.
+- Se `.claude/agents/` não existia antes deste módulo, os papéis só ficam disponíveis numa sessão nova. Diga à pessoa para reiniciar o Claude Code antes do Módulo 4; o `CURRICULUM.md` retoma de onde ela parou. Edições posteriores nos arquivos de papel passam a valer em poucos segundos, sem precisar reiniciar.
+- Se um papel precisar do mesmo procedimento extenso que outro papel, esse procedimento compartilhado é candidato a uma skill própria. Anote-o no `HANDOUT.md` em vez de construí-lo agora.

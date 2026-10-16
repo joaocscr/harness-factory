@@ -1,22 +1,22 @@
 #!/usr/bin/env node
-// Eval runner for a build-harness project.
-// Lives at harness/evals/run-evals.js. Reads harness/evals/eval-set.md, starts
-// the pipeline once per eval through Claude Code's non-interactive mode, checks
-// the criteria a script can check, and records the outcome.
+// Executor de evals para um projeto build-harness.
+// Fica em harness/evals/run-evals.js. Lê harness/evals/eval-set.md, inicia
+// o pipeline uma vez por eval pelo modo não interativo do Claude Code, confere
+// os critérios que um script consegue conferir e registra o desfecho.
 //
-//   node harness/evals/run-evals.js                  run every eval
-//   node harness/evals/run-evals.js --only E01,E04   run some
-//   node harness/evals/run-evals.js --list           show what would run, start nothing
+//   node harness/evals/run-evals.js                  roda todas as evals
+//   node harness/evals/run-evals.js --only E01,E04   roda algumas
+//   node harness/evals/run-evals.js --list           mostra o que rodaria, não inicia nada
 //
-// Options: --pipeline <name>   pipeline for evals that don't name one
-//          --timeout-min <n>   give up on one eval after n minutes (default 20)
-//          --allow-dirty       run even with uncommitted changes in the project
+// Opções: --pipeline <nome>    pipeline para as evals que não indicam um
+//         --timeout-min <n>    desiste de uma eval depois de n minutos (padrão 20)
+//         --allow-dirty        roda mesmo com mudanças sem commit no projeto
 //
-// Each eval runs the real pipeline, so it writes real files. Start from a clean
-// git state and review or discard the changes afterwards.
+// Cada eval roda o pipeline real, então grava arquivos reais. Comece de um estado
+// git limpo e revise ou descarte as mudanças depois.
 //
-// Writes: harness/evals/runs/<timestamp>/<id>.md   one report per eval
-//         harness/evals/results.md                 one row per eval, appended
+// Grava: harness/evals/runs/<timestamp>/<id>.md   um relatório por eval
+//        harness/evals/results.md                 uma linha por eval, acrescentada ao fim
 
 const fs = require('fs');
 const path = require('path');
@@ -38,7 +38,7 @@ function parseArgs(argv) {
     else if (argv[i] === '--timeout-min') args.timeoutMin = Number(argv[++i]);
     else if (argv[i] === '--allow-dirty') args.allowDirty = true;
     else if (argv[i] === '--list') args.list = true;
-    else fail(`Unknown option: ${argv[i]}`);
+    else fail(`Opção desconhecida: ${argv[i]}`);
   }
   return args;
 }
@@ -48,15 +48,15 @@ function fail(message) {
   process.exit(1);
 }
 
-// eval-set.md format, one block per eval:
+// Formato do eval-set.md, um bloco por eval:
 //
-//   ## E01: Short title
+//   ## E01: Título curto
 //   Category: role
-//   Pipeline: <pipeline-name>
-//   Input: The task, on one line, exactly as it would be typed.
+//   Pipeline: <nome-do-pipeline>
+//   Input: A tarefa, em uma linha, exatamente como seria digitada.
 //   Criteria:
-//   - [check: verdict pass] Reviewer gives PASS
-//   - [manual] The tone fits the customer
+//   - [check: verdict pass] O revisor dá PASS
+//   - [manual] O tom combina com o cliente
 function parseEvalSet(text) {
   const evals = [];
   let current = null;
@@ -108,8 +108,8 @@ function readLog(sessionId) {
   }
 }
 
-// The reviewer's verdicts for this run, in order. From the session log if
-// Module 7 is in place, otherwise from the handoff files the run created.
+// Os vereditos do revisor nesta execução, em ordem. Do log da sessão se o
+// Módulo 7 estiver no lugar; caso contrário, dos arquivos de handoff que a execução criou.
 function verdicts(log, handoffDirs) {
   if (log) {
     return log.filter((event) => event.type === 'role' && event.verdict).map((event) => event.verdict);
@@ -125,37 +125,37 @@ function verdicts(log, handoffDirs) {
   return found;
 }
 
-// Returns { ok: true|false|null, note }. null means "couldn't be checked".
+// Devolve { ok: true|false|null, note }. null significa "não pôde ser conferido".
 function runCheck(check, context) {
   const [name, ...rest] = check.split(/\s+/);
   const arg = rest.join(' ');
   const all = verdicts(context.log, context.handoffDirs);
   switch (name.toLowerCase()) {
     case 'verdict': {
-      if (all.length === 0) return { ok: false, note: 'no reviewer verdict found' };
+      if (all.length === 0) return { ok: false, note: 'nenhum veredito do revisor encontrado' };
       const last = all[all.length - 1];
-      return { ok: last === arg.toLowerCase(), note: `final verdict: ${last}` };
+      return { ok: last === arg.toLowerCase(), note: `veredito final: ${last}` };
     }
     case 'max-review-fails': {
       const fails = all.filter((verdict) => verdict === 'fail').length;
-      return { ok: fails <= Number(arg), note: `${fails} reviewer FAIL(s)` };
+      return { ok: fails <= Number(arg), note: `${fails} FAIL(s) do revisor` };
     }
     case 'hook-blocked': {
-      if (!context.log) return { ok: null, note: 'needs the session log from Module 7' };
+      if (!context.log) return { ok: null, note: 'precisa do log da sessão do Módulo 7' };
       const hit = context.log.some((event) => event.type === 'hook' && event.hook === arg && event.blocked);
-      return { ok: hit, note: hit ? `${arg} blocked an action` : `${arg} did not trigger` };
+      return { ok: hit, note: hit ? `${arg} bloqueou uma ação` : `${arg} não disparou` };
     }
     case 'no-hook-blocked': {
-      if (!context.log) return { ok: null, note: 'needs the session log from Module 7' };
+      if (!context.log) return { ok: null, note: 'precisa do log da sessão do Módulo 7' };
       const blocks = context.log.filter((event) => event.type === 'hook' && event.blocked);
-      return { ok: blocks.length === 0, note: `${blocks.length} hook block(s)` };
+      return { ok: blocks.length === 0, note: `${blocks.length} bloqueio(s) de hook` };
     }
     case 'file-exists': {
       const exists = fs.existsSync(path.resolve(PROJECT_DIR, arg));
-      return { ok: exists, note: exists ? 'file exists' : 'file missing' };
+      return { ok: exists, note: exists ? 'arquivo existe' : 'arquivo ausente' };
     }
     default:
-      return { ok: null, note: `unknown check "${name}"` };
+      return { ok: null, note: `checagem desconhecida "${name}"` };
   }
 }
 
@@ -166,50 +166,50 @@ function runPipeline(pipeline, input, timeoutMin) {
     { cwd: PROJECT_DIR, encoding: 'utf8', timeout: timeoutMin * 60000, maxBuffer: 64 * 1024 * 1024 }
   );
   if (result.error && result.error.code === 'ENOENT') {
-    fail(`Could not start "${CLAUDE_BIN}". Set the CLAUDE_BIN environment variable to the path of the claude executable.`);
+    fail(`Não foi possível iniciar "${CLAUDE_BIN}". Defina a variável de ambiente CLAUDE_BIN com o caminho do executável claude.`);
   }
-  if (result.error) return { error: result.error.code === 'ETIMEDOUT' ? `timed out after ${timeoutMin} min` : result.error.message };
+  if (result.error) return { error: result.error.code === 'ETIMEDOUT' ? `tempo esgotado após ${timeoutMin} min` : result.error.message };
   try {
     const parsed = JSON.parse(result.stdout);
-    // --output-format json prints one result object, or a list ending with it.
+    // --output-format json imprime um objeto de resultado, ou uma lista que termina com ele.
     const final = Array.isArray(parsed) ? parsed.filter((item) => item.type === 'result').pop() : parsed;
-    if (!final) return { error: 'no result in Claude Code output' };
+    if (!final) return { error: 'nenhum resultado na saída do Claude Code' };
     return {
       sessionId: final.session_id || null,
       text: final.result || '',
       costUsd: typeof final.total_cost_usd === 'number' ? final.total_cost_usd : null,
-      error: final.is_error ? final.result || 'Claude Code reported an error' : null,
+      error: final.is_error ? final.result || 'o Claude Code relatou um erro' : null,
     };
   } catch {
-    return { error: `unreadable output from Claude Code: ${(result.stderr || result.stdout || '').slice(0, 300)}` };
+    return { error: `saída ilegível do Claude Code: ${(result.stderr || result.stdout || '').slice(0, 300)}` };
   }
 }
 
 function mark(ok) {
-  return ok === true ? 'PASS' : ok === false ? 'FAIL' : 'NOT CHECKED';
+  return ok === true ? 'PASS' : ok === false ? 'FAIL' : 'NÃO CONFERIDO';
 }
 
 function writeReport(runDir, evalCase, run, context, checked) {
   const lines = [
     `# ${evalCase.id}: ${evalCase.title}`,
     '',
-    `Input: ${evalCase.input}`,
-    `Session: ${run.sessionId || 'unknown'}`,
-    `Handoffs: ${context.handoffDirs.map((dir) => `harness/handoffs/${dir}/`).join(', ') || 'none created'}`,
+    `Entrada: ${evalCase.input}`,
+    `Sessão: ${run.sessionId || 'desconhecida'}`,
+    `Handoffs: ${context.handoffDirs.map((dir) => `harness/handoffs/${dir}/`).join(', ') || 'nenhum criado'}`,
     '',
-    '## Checked by the script',
+    '## Conferido pelo script',
     '',
     ...checked.auto.map((item) => `- ${mark(item.result.ok)}: ${item.text} (${item.result.note})`),
-    ...(checked.auto.length ? [] : ['- none']),
+    ...(checked.auto.length ? [] : ['- nenhum']),
     '',
-    '## For you to check',
+    '## Para você conferir',
     '',
     ...checked.manual.map((item) => `- [ ] ${item.text}`),
-    ...(checked.manual.length ? [] : ['- none']),
+    ...(checked.manual.length ? [] : ['- nenhum']),
     '',
-    '## What the pipeline reported',
+    '## O que o pipeline relatou',
     '',
-    run.error ? `Run failed: ${run.error}` : run.text,
+    run.error ? `A execução falhou: ${run.error}` : run.text,
     '',
   ];
   fs.writeFileSync(path.join(runDir, `${evalCase.id}.md`), lines.join('\n'));
@@ -219,7 +219,7 @@ function appendResult(row) {
   if (!fs.existsSync(RESULTS)) {
     fs.writeFileSync(
       RESULTS,
-      '# Eval Results\n\n| Date | Eval | Result | Script checks | Yours to check | Tokens | Cost (USD) | Report |\n|---|---|---|---|---|---|---|---|\n'
+      '# Resultados das evals\n\n| Data | Eval | Resultado | Checagens do script | Para você conferir | Tokens | Custo (USD) | Relatório |\n|---|---|---|---|---|---|---|---|\n'
     );
   }
   fs.appendFileSync(RESULTS, `| ${row.join(' | ')} |\n`);
@@ -227,22 +227,22 @@ function appendResult(row) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  if (!fs.existsSync(EVAL_SET)) fail(`No eval set found at ${EVAL_SET}`);
+  if (!fs.existsSync(EVAL_SET)) fail(`Nenhum conjunto de evals encontrado em ${EVAL_SET}`);
 
   let evals = parseEvalSet(fs.readFileSync(EVAL_SET, 'utf8'));
   if (args.only) evals = evals.filter((evalCase) => args.only.includes(evalCase.id));
-  if (evals.length === 0) fail('No evals to run. Check the "## <ID>: <title>" headings in eval-set.md.');
+  if (evals.length === 0) fail('Nenhuma eval para rodar. Confira os títulos "## <ID>: <título>" no eval-set.md.');
 
   for (const evalCase of evals) {
     evalCase.pipeline = evalCase.pipeline || args.pipeline;
-    if (!evalCase.input) fail(`${evalCase.id} has no "Input:" line.`);
-    if (!evalCase.pipeline) fail(`${evalCase.id} names no pipeline. Add a "Pipeline:" line or pass --pipeline <name>.`);
+    if (!evalCase.input) fail(`${evalCase.id} não tem linha "Input:".`);
+    if (!evalCase.pipeline) fail(`${evalCase.id} não indica pipeline. Acrescente uma linha "Pipeline:" ou passe --pipeline <nome>.`);
   }
 
   if (args.list) {
     for (const evalCase of evals) {
       const auto = evalCase.criteria.filter((criterion) => criterion.check).length;
-      console.log(`${evalCase.id}  /${evalCase.pipeline}  ${auto} script check(s), ${evalCase.criteria.length - auto} manual  ${evalCase.title}`);
+      console.log(`${evalCase.id}  /${evalCase.pipeline}  ${auto} checagem(ns) do script, ${evalCase.criteria.length - auto} manual(is)  ${evalCase.title}`);
     }
     return;
   }
@@ -250,7 +250,7 @@ function main() {
   if (!args.allowDirty) {
     const status = spawnSync('git', ['status', '--porcelain'], { cwd: PROJECT_DIR, encoding: 'utf8' });
     if (status.status === 0 && status.stdout.trim()) {
-      fail('The project has uncommitted changes. Evals run the real pipeline and write real files.\nCommit or stash first, or pass --allow-dirty.');
+      fail('O projeto tem mudanças sem commit. As evals rodam o pipeline real e gravam arquivos reais.\nFaça commit ou stash antes, ou passe --allow-dirty.');
     }
   }
 
@@ -271,10 +271,10 @@ function main() {
     const checked = { auto: [], manual: [] };
     for (const criterion of evalCase.criteria) {
       if (!criterion.check) checked.manual.push(criterion);
-      else if (run.error) checked.auto.push({ ...criterion, result: { ok: false, note: 'run failed' } });
+      else if (run.error) checked.auto.push({ ...criterion, result: { ok: false, note: 'a execução falhou' } });
       else {
         const result = runCheck(criterion.check, context);
-        // A check the script couldn't perform goes back to the person.
+        // Uma checagem que o script não conseguiu fazer volta para a pessoa.
         if (result.ok === null) checked.manual.push({ text: `${criterion.text} (${result.note})` });
         else checked.auto.push({ ...criterion, result });
       }
@@ -290,8 +290,8 @@ function main() {
       stamp.slice(0, 10),
       evalCase.id,
       outcome,
-      `${checked.auto.length - autoFailed}/${checked.auto.length} passed`,
-      `${checked.manual.length} open`,
+      `${checked.auto.length - autoFailed}/${checked.auto.length} passaram`,
+      `${checked.manual.length} em aberto`,
       session && session.total_tokens ? session.total_tokens : '-',
       run.costUsd === null || run.costUsd === undefined ? '-' : run.costUsd.toFixed(2),
       `runs/${stamp}/${evalCase.id}.md`,
@@ -299,8 +299,8 @@ function main() {
     console.log(outcome + (run.error ? ` (${run.error})` : ''));
   }
 
-  console.log(`\nReports: ${path.relative(PROJECT_DIR, runDir)}`);
-  console.log('OPEN means the script checks passed and criteria remain for you to check in the report.');
+  console.log(`\nRelatórios: ${path.relative(PROJECT_DIR, runDir)}`);
+  console.log('OPEN significa que as checagens do script passaram e restam critérios para você conferir no relatório.');
   process.exit(failed ? 1 : 0);
 }
 

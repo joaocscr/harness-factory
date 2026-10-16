@@ -1,39 +1,39 @@
-# {{PROJECT_NAME}}: Harness Progress
+# {{PROJECT_NAME}}: Progresso do harness
 
-## Goal
+## Objetivo
 
 {{GOAL_SENTENCE}}
 
 ---
 
-## Progress
+## Progresso
 
-| # | Module | Status | Harness Artifact |
+| # | Módulo | Status | Artefato do harness |
 |---|---|---|---|
-| 1 | Context Engineering | ⬜ open | `AGENTS.md`, `CLAUDE.md` |
-| 2 | Roles & Subagents | ⬜ open | `.claude/agents/` |
-| 3 | Tools & MCP | ⬜ open | `.mcp.json`, `tools:` in each role file |
-| 4 | Multi-Agent Design | ⬜ open | `.claude/skills/<pipeline>/SKILL.md`, `harness/handoffs/` |
-| 5 | Hooks & Guards | ⬜ open | `harness/hooks/`, `.claude/settings.json` |
-| 6 | Evals | ⬜ open | `harness/evals/` |
-| 7 | Observability | ⬜ open | `harness/observability/`, `.claude/settings.json` |
-| 8 | Observability Dashboard (Bonus) | ⬜ open, only after 5+ real session logs | `index.html` |
+| 1 | Engenharia de contexto | ⬜ aberto | `AGENTS.md`, `CLAUDE.md` |
+| 2 | Papéis e subagentes | ⬜ aberto | `.claude/agents/` |
+| 3 | Ferramentas e MCP | ⬜ aberto | `.mcp.json`, `tools:` em cada arquivo de papel |
+| 4 | Design multi-agente | ⬜ aberto | `.claude/skills/<pipeline>/SKILL.md`, `harness/handoffs/` |
+| 5 | Hooks e guardas | ⬜ aberto | `harness/hooks/`, `.claude/settings.json` |
+| 6 | Evals | ⬜ aberto | `harness/evals/` |
+| 7 | Observabilidade | ⬜ aberto | `harness/observability/`, `.claude/settings.json` |
+| 8 | Painel de observabilidade (bônus) | ⬜ aberto, só depois de 5+ logs de sessões reais | `index.html` |
 
-**Legend:** ⬜ open · 🔄 in progress · ✅ done
-
----
-
-## How Sessions Work
-
-Every session:
-1. Read this file first: where does progress stand?
-2. Continue at the first module that isn't ✅ yet
-3. Answer the questions from that module's lesson in the `build-harness` skill, in chat
-4. Build the harness artifact together
-5. Mark the module as ✅
+**Legenda:** ⬜ aberto · 🔄 em andamento · ✅ concluído
 
 ---
 
-## Reference
+## Como as sessões funcionam
 
-This project was set up with the `build-harness` skill, a generalized version of a course on building a multi-agent harness. To continue, start Claude Code in this folder and ask to continue the harness workshop; the lessons come with the skill.
+Em toda sessão:
+1. Leia este arquivo primeiro: em que ponto está o progresso?
+2. Continue no primeiro módulo que ainda não está ✅
+3. Responda no chat às perguntas da lição daquele módulo no skill `build-harness`
+4. Construam juntos o artefato do harness
+5. Marque o módulo como ✅
+
+---
+
+## Referência
+
+Este projeto foi montado com o skill `build-harness`, uma versão generalizada de um curso sobre construção de um harness multi-agente. Para continuar, abra o Claude Code nesta pasta e peça para continuar o workshop do harness; as lições vêm junto com o skill.

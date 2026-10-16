@@ -1,174 +1,174 @@
-# Module 6: Evals
+# Módulo 6: Evals
 
-## Core Idea
+## Ideia central
 
-Hooks check individual rules. The reviewer checks individual outputs. But who checks whether the **harness as a whole** works reliably?
+Hooks conferem regras individuais. O revisor confere saídas individuais. Mas quem confere se o **harness como um todo** funciona com confiabilidade?
 
-That's the job of evals.
+Essa é a função das evals.
 
-A classic test checks whether code compiles. An eval checks something different: whether the harness makes the right decisions, stays consistent, and still behaves as expected after a change.
+Um teste clássico confere se o código compila. Uma eval confere algo diferente: se o harness toma as decisões certas, se mantém consistente e continua se comportando como esperado depois de uma mudança.
 
-The question an eval answers:
-> "Given this input, does the harness reliably produce the right output?"
+A pergunta que uma eval responde:
+> "Dada esta entrada, o harness produz a saída certa com confiabilidade?"
 
-## The Analogy: Test Drives
+## A analogia: test drives
 
-A car gets built. Hooks check whether the brakes are mounted correctly. The reviewer checks whether the steering wheel sits straight. But nobody has driven the car yet.
+Um carro é construído. Os hooks conferem se os freios foram montados corretamente. O revisor confere se o volante está reto. Mas ninguém dirigiu o carro ainda.
 
-An eval is the test drive. A defined route, under defined conditions, checking whether the car behaves the way it should.
+Uma eval é o test drive. Um trajeto definido, em condições definidas, conferindo se o carro se comporta como deveria.
 
-Swap the engine, redo the test drive. Add a new road, add a new test to the route.
+Trocou o motor, refaça o test drive. Acrescentou uma estrada nova, acrescente um teste novo ao trajeto.
 
-## Output Eval vs. Trajectory Eval
+## Eval de resultado vs. eval de trajetória
 
-**Output eval**
-Checks the end result: is the outcome correct? Are all expected parts present? Is it complete?
-Easier to write, covers most cases.
+**Eval de resultado**
+Confere o resultado final: o desfecho está correto? Todas as partes esperadas estão presentes? Está completo?
+Mais fácil de escrever, cobre a maioria dos casos.
 
-**Trajectory eval**
-Checks the path: did the role search for something similar before creating something new? Was an existence check done before building?
-Harder, but important. A correct result reached the wrong way is a ticking time bomb.
+**Eval de trajetória**
+Confere o caminho: o papel procurou algo parecido antes de criar algo novo? Foi feita uma checagem de existência antes de construir?
+Mais difícil, mas importante. Um resultado correto alcançado pelo caminho errado é uma bomba-relógio.
 
-**For a start:** begin with output evals. Trajectory evals come once the harness is running.
+**Para começar:** comece pelas evals de resultado. As evals de trajetória vêm quando o harness já está rodando.
 
-## Anatomy of an Eval
+## Anatomia de uma eval
 
-Every eval has three parts:
+Toda eval tem três partes:
 
-**1. Input:** what does the harness receive? A concrete, realistic task, the way it would actually be sent in real operation.
-**2. Expected Output:** what should come out? Not a vague description, concrete, checkable criteria.
-**3. Rubric:** how is it scored? Pass/fail per criterion, no overall score without individual evaluation.
+**1. Entrada:** o que o harness recebe? Uma tarefa concreta e realista, do jeito que seria de fato enviada em operação real.
+**2. Saída esperada:** o que deveria sair? Não uma descrição vaga, e sim critérios concretos e verificáveis.
+**3. Rubrica:** como é pontuada? Aprovado/reprovado por critério, nenhuma nota geral sem avaliação individual.
 
-## Deriving Eval Categories
+## Derivando as categorias de eval
 
-Categories follow from the roles (Module 2) and the pipeline (Module 4), not from a fixed list:
+As categorias decorrem dos papéis (Módulo 2) e do pipeline (Módulo 4), não de uma lista fixa:
 
-**1. Role evals:** one category per creator role, checks whether that role works correctly
-**2. Pipeline evals:** checks whether the whole assembly line runs correctly (order, handoffs, FAIL to correction)
-**3. Edge-case evals:** checks whether unexpected or borderline inputs are handled correctly
+**1. Evals de papel:** uma categoria por papel criador, confere se aquele papel funciona corretamente
+**2. Evals de pipeline:** confere se a linha de montagem inteira roda corretamente (ordem, handoffs, FAIL para correção)
+**3. Evals de caso-limite:** confere se entradas inesperadas ou de fronteira são tratadas corretamente
 
-A worked example, as a pattern for your own eval:
+Um exemplo resolvido, como padrão para a sua própria eval:
 
 ```markdown
-## E01: <short title>
+## E01: <título curto>
 Category: role
-Pipeline: <pipeline-name>
-Input: <a realistic task from the intake, on one line, as it would be typed>
+Pipeline: <nome-do-pipeline>
+Input: <uma tarefa realista do intake, em uma linha, como seria digitada>
 Criteria:
-- [check: verdict pass] Reviewer gives PASS in the end
-- [check: file-exists <path/to/expected/output>] The output file exists
-- [manual] Output follows the naming/structure convention from AGENTS.md
-- [manual] Role first checked whether something similar already exists
+- [check: verdict pass] O revisor dá PASS no final
+- [check: file-exists <caminho/para/a/saida/esperada>] O arquivo de saída existe
+- [manual] A saída segue a convenção de nomes/estrutura do AGENTS.md
+- [manual] O papel primeiro conferiu se algo parecido já existe
 
-## E02: <short title>
+## E02: <título curto>
 Category: edge-case
-Pipeline: <pipeline-name>
-Input: <an input that would violate a hard rule>
+Pipeline: <nome-do-pipeline>
+Input: <uma entrada que violaria uma regra rígida>
 Criteria:
-- [check: hook-blocked <hook-name>] The guard stopped the violation
-- [manual] Role refuses or asks, instead of breaking the rule
+- [check: hook-blocked <nome-do-hook>] A guarda impediu a violação
+- [manual] O papel recusa ou pergunta, em vez de quebrar a regra
 ```
 
-The actual evals emerge from conversation about the real roles, rules, and examples of this harness, not from copying the example above.
+As evals de verdade surgem da conversa sobre os papéis, as regras e os exemplos reais deste harness, não de copiar o exemplo acima.
 
-The format is fixed because a script reads it (next section): one `## <ID>: <title>` heading per eval, one `Input:` line, and every criterion marked either `[check: ...]` or `[manual]`.
+O formato é fixo porque um script o lê (próxima seção): um título `## <ID>: <título>` por eval, uma linha `Input:` e cada critério marcado como `[check: ...]` ou `[manual]`.
 
-## Two Kinds of Criteria
+## Dois tipos de critério
 
 | | `[check: ...]` | `[manual]` |
 |---|---|---|
-| Decided by | The script | You |
-| Good for | Facts: a verdict, a file, a hook | Judgment: tone, reasoning, fit |
-| Example | "Reviewer gives PASS" | "The reply sounds like us" |
+| Quem decide | O script | Você |
+| Bom para | Fatos: um veredito, um arquivo, um hook | Julgamento: tom, raciocínio, adequação |
+| Exemplo | "O revisor dá PASS" | "A resposta soa como nós" |
 
-The checks the script knows:
+As checagens que o script conhece:
 
-| Check | Passes when |
+| Checagem | Passa quando |
 |---|---|
-| `verdict pass` / `verdict fail` | The reviewer's final verdict is that one |
-| `max-review-fails <n>` | The reviewer said FAIL at most n times |
-| `file-exists <path>` | That file exists after the run |
-| `hook-blocked <hook-name>` | That guard from Module 5 blocked something |
-| `no-hook-blocked` | No guard had to step in |
+| `verdict pass` / `verdict fail` | O veredito final do revisor é esse |
+| `max-review-fails <n>` | O revisor disse FAIL no máximo n vezes |
+| `file-exists <caminho>` | Esse arquivo existe depois da execução |
+| `hook-blocked <nome-do-hook>` | Essa guarda do Módulo 5 bloqueou algo |
+| `no-hook-blocked` | Nenhuma guarda precisou intervir |
 
-The two hook checks read the session log, which only exists after Module 7. Until then the script hands them back to you as manual.
+As duas checagens de hook leem o log da sessão, que só existe depois do Módulo 7. Até lá, o script as devolve a você como manuais.
 
-The more criteria you can phrase as a check, the less there is to do by hand. "The result is good" can't be checked; "Reviewer gives PASS" can.
+Quanto mais critérios você conseguir formular como checagem, menos há para fazer à mão. "O resultado é bom" não pode ser checado; "O revisor dá PASS" pode.
 
-## The Eval Set
+## O conjunto de evals
 
-An eval set is a collection of evals that together cover the harness.
+Um conjunto de evals (eval set) é uma coleção de evals que, juntas, cobrem o harness.
 
-**10-15 evals** is a good starting point: enough to catch regressions, not so many that they never actually get run.
+**10-15 evals** é um bom ponto de partida: o bastante para pegar regressões, não tantas que nunca cheguem a ser rodadas.
 
-Rule of thumb: 3-4 per creator role, 2-3 pipeline evals, 3-4 edge-case evals.
+Regra prática: 3-4 por papel criador, 2-3 evals de pipeline, 3-4 evals de caso-limite.
 
-## How Evals Get Run
+## Como as evals são rodadas
 
-Nobody copy-pastes fifteen inputs into a chat. A runner script does it:
+Ninguém copia e cola quinze entradas num chat. Um script executor faz isso:
 
 ```
-node harness/evals/run-evals.js                  ← the whole set
-node harness/evals/run-evals.js --only E01,E04   ← just these
-node harness/evals/run-evals.js --list           ← show what would run
+python metodo/evals/run_evals.py                  ← o conjunto inteiro
+python metodo/evals/run_evals.py --only E01,E04   ← só estas
+python metodo/evals/run_evals.py --list           ← mostra o que rodaria
 ```
 
-For each eval, the script starts the pipeline with that eval's input, exactly as if you had typed `/<pipeline-name> <input>`, waits for it to finish, and runs the checks. Then it writes two things:
+Para cada eval, o script inicia o pipeline com a entrada daquela eval, exatamente como se você tivesse digitado `/<nome-do-pipeline> <entrada>`, espera terminar e roda as checagens. Depois grava duas coisas:
 
-- **One report per eval** in `harness/evals/runs/<date-time>/<ID>.md`: what the script checked, what's left for you as a tick list, and what the pipeline reported.
-- **One row per eval** in `harness/evals/results.md`: result, how many checks passed, how many criteria are yours, tokens and cost.
+- **Um relatório por eval** em `metodo/evals/runs/<data-hora>/<ID>.md`: o que o script conferiu, o que sobra para você como lista de itens a marcar e o que o pipeline relatou.
+- **Uma linha por eval** em `metodo/evals/results.md`: resultado, quantas checagens passaram, quantos critérios são seus, tokens e custo.
 
-The result in that row is one of:
+O resultado nessa linha é um destes:
 
-| Result | Meaning |
+| Resultado | Significado |
 |---|---|
-| `PASS` | Every criterion was a check, and all passed |
-| `OPEN` | All checks passed; manual criteria are waiting in the report |
-| `FAIL` | At least one check failed |
-| `ERROR` | The pipeline didn't finish |
+| `PASS` | Todo critério era uma checagem, e todas passaram |
+| `OPEN` | Todas as checagens passaram; critérios manuais aguardam no relatório |
+| `FAIL` | Pelo menos uma checagem falhou |
+| `ERROR` | O pipeline não terminou |
 
-After you've gone through the manual criteria of an `OPEN` eval, change its row to `PASS` or `FAIL` yourself.
+Depois de percorrer os critérios manuais de uma eval `OPEN`, mude você mesmo a linha dela para `PASS` ou `FAIL`.
 
-Where the two numbers in a row come from:
+De onde vêm os dois números de uma linha:
 
-- **Cost (USD)** is reported by Claude Code itself at the end of each run; the script copies it and calculates nothing. It's priced at API rates. If you use Claude Code through a subscription instead of an API key, you don't pay that amount per run; read it as a way to compare runs.
-- **Tokens** come from the session log and stay `-` until Module 7 is in place.
+- **Custo (USD)** é informado pelo próprio Claude Code ao fim de cada execução; o script o copia e não calcula nada. É precificado a tarifas de API. Se você usa o Claude Code por assinatura em vez de chave de API, não paga esse valor por execução; leia-o como forma de comparar execuções.
+- **Tokens** vêm do log da sessão e ficam `-` até o Módulo 7 estar no lugar.
 
-Two things to know before the first run:
+Duas coisas a saber antes da primeira execução:
 
-- **Evals do real work.** The pipeline writes real files, the same as in normal use. The script refuses to start if the project has uncommitted changes, so that afterwards everything an eval run produced is easy to see and to discard.
-- **Evals cost tokens.** Each one is a full pipeline run. The cost column in `results.md` shows what a round costs; `--only` runs just the ones a change could have affected.
+- **Evals fazem trabalho real.** O pipeline grava arquivos reais, igual ao uso normal. O script se recusa a começar se o projeto tiver mudanças sem commit, para que depois tudo o que uma execução de eval produziu seja fácil de ver e de descartar.
+- **Evals custam tokens.** Cada uma é uma execução completa do pipeline. A coluna de custo em `results.md` mostra quanto custa uma rodada; `--only` roda apenas as que uma mudança pode ter afetado.
 
-## When Evals Get Run
+## Quando as evals são rodadas
 
-- **After every model update:** a new model can behave differently
-- **After every harness change:** new rule, new hook, changed role file
-- **On unexpected behavior:** the agent does something unexpected, so write an eval, reproduce it, fix it
+- **Depois de toda atualização de modelo:** um modelo novo pode se comportar de forma diferente
+- **Depois de toda mudança no harness:** regra nova, hook novo, arquivo de papel alterado
+- **Diante de comportamento inesperado:** o agente faz algo inesperado; então escreva uma eval, reproduza, corrija
 
-Evals aren't a one-time setup. They grow with the harness.
+Evals não são uma configuração única. Elas crescem com o harness.
 
-## Questions For You
+## Perguntas para a pessoa
 
-- Which behaviors of the harness are non-negotiable?
-- What would be a clear sign the harness has stopped working correctly?
-- For each role: what's a realistic test case, and what's the expected result?
+- Quais comportamentos do harness são inegociáveis?
+- Qual seria um sinal claro de que o harness parou de funcionar corretamente?
+- Para cada papel: qual é um caso de teste realista, e qual é o resultado esperado?
 
-## What Gets Built
+## O que é construído
 
-*(Adapted for the portable-method layout.)*
+*(Adaptado para o layout de método portável.)*
 
-- `metodo/evals/eval-set.md`: 10-15 evals across the three categories, in the format above
-- `metodo/evals/gabaritos/`: the expected answers (answer keys), one file per eval that needs one. Production agents are denied read access to this folder via `.claude/settings.json`; only the runner and the person read it.
-- `metodo/evals/run-evals.js`: the runner, copied unchanged from this skill's `templates/run-evals.js` (needs Node; when the person's machine has no Node, skip the runner and run the evals conversationally — Claude executes each eval and the person grades against the gabarito)
-- `metodo/evals/results.md` and `metodo/evals/runs/`: created by the runner on its first run. Module 7's drift check compares against `results.md`.
+- `metodo/evals/eval-set.md`: 10-15 evals nas três categorias, no formato acima
+- `metodo/evals/gabaritos/`: as respostas esperadas (gabaritos), um arquivo por eval que precisar de um. Os agentes de produção têm o acesso de leitura a esta pasta negado via `.claude/settings.json`; só o executor e a pessoa a leem.
+- `metodo/evals/run_evals.py`: o executor — **porte fiel em Python** do `templates/run-evals.js` deste skill (o template é referência de comportamento, não cópia: mesmo formato de relatório, mesmas regex, marcador `VERDICT: PASS/FAIL` em inglês, stdin/arquivos lidos como UTF-8). Sem ambiente para rodá-lo, rode as evals conversando — o Claude executa cada eval e a pessoa avalia contra o gabarito. Evals de pipeline rodam em **modo eval** (ver SKILL.md do `construir`): aprovação humana registrada como "simulada — modo teste", nunca pulada em silêncio, ou o trajeto termina antes da aprovação.
+- `metodo/evals/results.md` e `metodo/evals/runs/`: criados pelo executor na primeira execução. A verificação de deriva do Módulo 7 compara com `results.md`.
 
-## Notes For Running This
+## Notas de condução
 
-- Don't write the runner from scratch; copy `templates/run-evals.js`. It's been tested against real pipeline runs. It needs Node and the `claude` command on the PATH (otherwise set `CLAUDE_BIN`).
-- Before the module is marked done: run `--list` to confirm every eval parses, then run one eval for real with `--only` and read its report together with the person. The full set can wait; one real run can't.
-- The runner starts Claude Code without a chat window, so nobody is there to approve a permission prompt. File edits are allowed automatically; anything else a role needs (shell commands, MCP tools) must be allowed in `.claude/settings.json` under `permissions`, or the run stalls or fails. If the first real run ends in `ERROR`, check this first.
-- If a role writes to an external system through an MCP server, an eval run writes there too, and git can't undo that. Ask about this before the first run. Point such evals at a test environment, or leave them out of the automated set and note it in `HANDOUT.md`.
-- A criterion the runner doesn't recognize is handed to the person as manual, with a note. Check `--list` for unexpectedly low check counts.
-- For trajectory criteria ("checked for an existing record first"), the handoff files from Module 4 are the evidence. Keep them `[manual]` unless a check can express them.
-- Best to start with the evals most rooted in a real, already-experienced failure; those are more concrete than invented ones.
-- If an eval is hard to formulate, that's often a sign the underlying rule in `AGENTS.md` is still too vague. A quick trip back to Module 1 usually helps.
+- Não invente o comportamento do executor do zero: porte fielmente `templates/run-evals.js` (testado contra execuções reais de pipeline) para Python. O executor precisa do comando `claude` no PATH (caso contrário, defina `CLAUDE_BIN`).
+- Antes de marcar o módulo como concluído: rode `--list` para confirmar que toda eval é lida corretamente, depois rode uma eval de verdade com `--only` e leia o relatório dela junto com a pessoa. O conjunto completo pode esperar; uma execução real, não.
+- O executor inicia o Claude Code sem janela de chat, então não há ninguém para aprovar um pedido de permissão. Edições de arquivo são permitidas automaticamente; qualquer outra coisa de que um papel precise (comandos de shell, ferramentas MCP) tem de estar permitida no `.claude/settings.json` em `permissions`, ou a execução trava ou falha. Se a primeira execução real terminar em `ERROR`, confira isto primeiro.
+- Se um papel grava num sistema externo por meio de um servidor MCP, uma execução de eval grava lá também, e o git não consegue desfazer isso. Pergunte sobre isso antes da primeira execução. Aponte essas evals para um ambiente de teste, ou deixe-as fora do conjunto automatizado e anote no `HANDOUT.md`.
+- Um critério que o executor não reconhece é entregue à pessoa como manual, com uma nota. Confira no `--list` contagens de checagens inesperadamente baixas.
+- Para critérios de trajetória ("conferiu primeiro se já existia um registro"), os arquivos de handoff do Módulo 4 são a evidência. Mantenha-os `[manual]`, a menos que uma checagem consiga expressá-los.
+- O melhor é começar pelas evals mais enraizadas numa falha real, já vivida; elas são mais concretas que as inventadas.
+- Se uma eval for difícil de formular, muitas vezes é sinal de que a regra subjacente no `AGENTS.md` ainda está vaga demais. Uma volta rápida ao Módulo 1 costuma ajudar.

@@ -1,20 +1,20 @@
-# Module 8: Observability Dashboard (Bonus)
+# Módulo 8: Painel de observabilidade (bônus)
 
-This module is optional and only becomes relevant once at least 5 real sessions have been logged.
+Este módulo é opcional e só se torna relevante depois que pelo menos 5 sessões reais tiverem sido registradas.
 
-**Prerequisite:** `harness/observability/logs/` contains at least 5 session log files with real data.
+**Pré-requisito:** `harness/observability/logs/` contém pelo menos 5 arquivos de log de sessão com dados reais.
 
-**What gets built:**
-- A local `index.html` (or a second tab, if a dashboard page already exists) with a "Metrics" view
-- Reads session logs directly from `harness/observability/logs/`
-- Visualizations: token cost over time, reviewer FAIL rate, hook frequency, pipeline comparison
-- No server, no build step; runs locally in the browser
+**O que é construído:**
+- Um `index.html` local (ou uma segunda aba, se já existir uma página de painel) com uma visão "Métricas"
+- Lê os logs de sessão diretamente de `harness/observability/logs/`
+- Visualizações: custo em tokens ao longo do tempo, taxa de FAIL do revisor, frequência dos hooks, comparação entre pipelines
+- Sem servidor, sem etapa de build; roda localmente no navegador
 
-**Why only after real data:**
-A dashboard with dummy data doesn't show anything useful. Real data shows what's actually worth watching, and what was initially assumed incorrectly.
+**Por que só depois de dados reais:**
+Um painel com dados fictícios não mostra nada útil. Dados reais mostram o que de fato vale observar, e o que foi suposto incorretamente no início.
 
-**Harness artifact:** `index.html` (or its own file), the metrics dashboard
+**Artefato do harness:** `index.html` (ou um arquivo próprio), o painel de métricas
 
-## Notes For Running This
+## Notas de condução
 
-- If the person asks about this before 5 logs exist, briefly explain why it's worth waiting, and offer to run a real session now instead, to generate data.
+- Se a pessoa perguntar sobre isto antes de existirem 5 logs, explique brevemente por que vale esperar e ofereça rodar uma sessão real agora, para gerar dados.
