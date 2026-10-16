@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.2.2 — 2026-10-16 — reteste com runtime real concluído
+
+Após renovação do login do CLI pelo dono, as 4 execuções headless reais dentro do harness gerado fecharam as últimas ressalvas (`docs/testes/2026-10-16-reteste-runtime.md`):
+
+- **A17 fechado:** tipo de agente do projeto carregado e delegável; restrições de ferramentas impostas pelo sistema; revisor falhou-fechado como desenhado.
+- **Acionamento 6-4 por execução:** positivo carrega `backtest-fator`, vizinho conceitual não carrega.
+- **Eval real pelo runner:** `VERDICT: PASS` de ponta a ponta.
+- **guardas:** regra nova — bloqueio de gravação de arquivo usa `Edit(caminho)`; `Write(caminho)` não é avaliado pelo sistema de permissões (aviso real do runtime).
+- Diferido com motivo: baseline 6-3 (exercício A/B por harness, não validação da fábrica).
+
 ## v0.2.1 — 2026-10-16 — diferidos fechados
 
 Fecha todos os diferidos da v0.2.0 que não dependem do dono. Detalhes em `docs/testes/2026-10-16-reteste-runtime.md`.

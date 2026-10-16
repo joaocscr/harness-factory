@@ -42,6 +42,7 @@ Antes de gravar, devolva cada regra: *"Vou instalar a trava: sempre que o assist
 ### 4. Gravar
 
 - Hooks entram em `.claude/settings.json` do harness alvo — **nunca sobrescreva**: leia o que existe, acrescente, mostre o resultado. Conflito com hook existente no mesmo evento? Pare e pergunte.
+- **Regras de permissão sobre arquivos:** para impedir alteração/gravação use `Edit(caminho)` — ela cobre todas as ferramentas de edição; uma regra `Write(caminho)` **não é avaliada** pelo sistema de permissões (aviso real do runtime, 16/10/2026). Para impedir leitura: `Read(caminho)` + `Bash(*caminho*)`.
 - Scripts entram em `metodo/checagens/hooks/` (são parte do método portável: a regra de negócio da trava vale em qualquer plataforma; só a amarração é do Claude Code).
 - O formato exato de entrada/saída de hooks muda entre versões do Claude Code: **confirme na documentação atual antes de gravar o primeiro hook** e teste cada um — uma vez com ação que deve ser bloqueada, uma com ação que deve passar.
 - Quando a mudança passa a valer varia com a versão do Claude Code: a documentação atual (verificada em 16/10/2026) diz que edições no settings são "normalmente captadas automaticamente", mas versões houve em que exigiam confirmação ou nova sessão. Por isso **nunca declare a guarda ativa pelo relógio: o teste obrigatório (um bloqueio + uma passagem) é o que confirma que ela passou a valer** — e, se o teste não disparar, reiniciar a sessão é o primeiro remédio.

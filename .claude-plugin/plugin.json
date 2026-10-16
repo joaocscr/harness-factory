@@ -1,7 +1,7 @@
 {
   "name": "harness-factory",
   "displayName": "Harness Factory",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Constrói e evolui harnesses de agentes para qualquer domínio intelectual, conduzindo usuários leigos em tecnologia de uma conversa sobre o trabalho deles até um time de agentes funcionando, com método portável e agnóstico de modelo.",
   "author": {
     "name": "João Coutinho"
