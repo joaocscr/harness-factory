@@ -51,7 +51,7 @@ Processa ao mesmo tempo tarefas independentes entre si e depois junta os resulta
 
 **Atenção:** a forma de juntar os resultados determina a qualidade do todo.
 
-**Modo de execução recomendado na v2:** considere primeiro a **coordenação por workflow**. Defina a lista de perspectivas como um array, envie-a para `pipeline()`, receba os resultados conforme o `schema` e junte-os em código. Use `parallel()` só quando for preciso eliminar duplicatas depois de reunir todos os resultados. Nesse caso, só se passa à etapa seguinte depois que todas as chamadas paralelas terminarem. Para pesquisas com 2 a 4 pessoas em que os pesquisadores precisam compartilhar em tempo real o que encontraram, a colaboração de agentes persistentes também é adequada.
+**Modo de execução recomendado na v2:** considere primeiro a **coordenação por workflow**. Defina a lista de perspectivas como um array, envie-a para `pipeline()`, receba os resultados conforme o `schema` e junte-os em código. Use `parallel()` só quando for preciso eliminar duplicatas depois de reunir todos os resultados. Nesse caso, só se passa à etapa seguinte depois que todas as chamadas paralelas terminarem. Para pesquisas com 2 a 4 agentes em que os pesquisadores precisam compartilhar em tempo real o que encontraram, a colaboração de agentes persistentes também é adequada.
 
 ### 1-3. Pool de especialistas (Expert Pool)
 

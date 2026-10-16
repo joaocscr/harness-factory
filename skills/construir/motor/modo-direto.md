@@ -22,7 +22,7 @@ Desenha o harness adequado ao projeto. Define o papel de cada agente e cria os s
 
 ### Etapa 0: verificação do estado atual
 
-Ao carregar o skill de harness, verifique primeiro a configuração existente.
+Ao carregar este roteiro, verifique primeiro a configuração existente.
 
 1. Leia `projeto/.claude/agents/`, `projeto/.claude/skills/` e `projeto/CLAUDE.md`.
 2. Escolha o procedimento a seguir conforme o estado atual.
