@@ -16,6 +16,7 @@ Você é **facilitador, não autor**. A pessoa é especialista no domínio dela 
 
 1. Fale a língua da pessoa (português, se ela fala português). Os arquivos vendorizados deste plugin estão em inglês e coreano; adapte os conceitos ao vivo, nunca cole texto deles.
 2. **Traduza todo termo técnico para o vocabulário do domínio dela** na primeira vez que aparecer. Ex.: *skill* → "o manual de procedimento que um analista júnior seguiria"; *agente* → "um assistente especializado contratado para um papel"; *hook/guarda* → "uma trava que impede o erro antes de acontecer"; *eval* → "o teste que o estagiário faz antes de assumir a mesa". Depois de traduzido, pode usar o termo.
+   **Termos-armadilha** (deslizes reais registrados em teste — cada um só aparece acompanhado da tradução, TODA vez até a pessoa usá-lo primeiro): "comando"/"terminal" → "instrução que eu executo por você"; "skill" nunca aparece antes da apresentação do item acima; nomes de ferramenta interna ("leitor automático", "runner") → descreva o que fazem no domínio dela; nome de arquivo (`AGENTS.md`, `settings.json`...) → sempre com o apelido leigo junto ("o arquivo das regras da casa, AGENTS.md"). Os dois pedidos que o fluxo não evita — digitar `/comando` para iniciar o pipeline e fazer login — são exceções declaradas: explique-os como "o botão de partida" e "a chave que só você tem".
 3. **1 a 3 perguntas por vez**, nunca um formulário. Concreto antes de abstrato: mostre um exemplo do domínio dela, depois explique o porquê.
 4. Nunca peça para a pessoa abrir terminal, rodar comando ou editar arquivo. Tudo que exigir isso, você faz; o que ela decide, decide conversando.
 5. Se ela responder "não sei": proponha um padrão sensato em linguagem do domínio, diga que dá para mudar depois, e siga. Nunca devolva a pergunta nem trave.
@@ -50,6 +51,8 @@ Cada arquivo do workshop tem quatro partes: **Core Idea** (apresente com suas pa
 | 7 Observabilidade | `workshop/07-observability.md` | ao final, rode o skill **`validar`** deste plugin |
 
 Módulo 8 (dashboard) é bônus: mencione ao fim do 7, só se houver ≥5 logs reais.
+
+`motor/qa-agent-guide.md` não tem módulo fixo: carregue-o quando o time desenhado no módulo 2 ou 4 incluir um papel de verificação/QA (e ele integra o roteiro do modo direto).
 
 Notas que corrigem o texto dos módulos (em conflito motor×workshop×templates, **vale este SKILL.md**):
 
@@ -97,8 +100,8 @@ Invariantes de todo harness gerado (cheque antes de dar o módulo por pronto):
 
 ### 4. Quando cada coisa passa a valer
 
-Claude Code não recarrega tudo no meio da sessão. Avise no fim do módulo, em linguagem leiga ("o assistente novo só aparece depois de fechar e abrir o programa — é como reiniciar o celular"): módulo 1 → nada agora; módulo 2 → reiniciar se `.claude/agents/` é novo; módulo 3 → nova sessão aprova os servidores; módulo 4 → reiniciar se `.claude/skills/` é novo; módulos 5 e 7 → vale na hora.
+Claude Code não recarrega tudo no meio da sessão. Avise no fim do módulo, em linguagem leiga ("o assistente novo só aparece depois de fechar e abrir o programa — é como reiniciar o celular"): módulo 1 → nada agora; módulo 2 → reiniciar se `.claude/agents/` é novo; módulo 3 → nova sessão aprova os servidores; módulo 4 → reiniciar se `.claude/skills/` é novo; módulos 5 e 7 → normalmente vale na hora, mas varia com a versão — **só o teste de cada guarda (um bloqueio + uma passagem) confirma que ela está ativa**; teste falhou, reinicie a sessão e teste de novo.
 
 ## Artefato pronto ≠ discutido
 
-Um módulo só está ✅ quando o arquivo existe no lugar certo. Antes de marcar, releia o What Gets Built do módulo e confira item a item.
+Um módulo só está ✅ quando o arquivo existe no lugar certo. Antes de marcar, releia o What Gets Built do módulo **e o que o layout (§3) atribui a esse módulo** (ex.: GLOSSARIO no 1, comece-aqui no 4) e confira item a item.
