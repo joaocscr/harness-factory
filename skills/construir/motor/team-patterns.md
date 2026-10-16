@@ -1,276 +1,276 @@
-# 팀 구성 패턴 — 기본 패턴 6종, 품질 검증, 에이전트 정의
+# Padrões de composição de times — 6 padrões básicos, verificação de qualidade, definição de agentes
 
-이 문서는 `SKILL.md`의 2-2단계와 3단계를 보충한다. 각 패턴에서 v2가 권장하는 실행 모드를 설명한다. 자세한 내용은 `execution-modes.md`에 있다.
-
----
-
-## 목차
-
-1. [기본 패턴 6종](#1-기본-패턴-6종)
-2. [품질 검증 패턴(v2에서 추가)](#2-품질-검증-패턴v2에서-추가)
-3. [복합 패턴](#3-복합-패턴)
-4. [에이전트 유형 선택](#4-에이전트-유형-선택)
-5. [에이전트 정의 구조](#5-에이전트-정의-구조)
-6. [에이전트 분리 기준](#6-에이전트-분리-기준)
-7. [에이전트 재사용 설계](#7-에이전트-재사용-설계)
-8. [스킬과 에이전트 구분](#8-스킬과-에이전트-구분)
+Este documento complementa as etapas 2-2 e 3 do `modo-direto.md`. Explica o modo de execução que a v2 recomenda para cada padrão. Os detalhes estão em `execution-modes.md`.
 
 ---
 
-## 1. 기본 패턴 6종
+## Sumário
 
-### 1-1. 파이프라인(Pipeline)
+1. [Os 6 padrões básicos](#1-os-6-padrões-básicos)
+2. [Padrões de verificação de qualidade (acrescentados na v2)](#2-padrões-de-verificação-de-qualidade-acrescentados-na-v2)
+3. [Padrões compostos](#3-padrões-compostos)
+4. [Escolha do tipo de agente](#4-escolha-do-tipo-de-agente)
+5. [Estrutura da definição de agente](#5-estrutura-da-definição-de-agente)
+6. [Critérios para separar agentes](#6-critérios-para-separar-agentes)
+7. [Design de reutilização de agentes](#7-design-de-reutilização-de-agentes)
+8. [Distinção entre skill e agente](#8-distinção-entre-skill-e-agente)
 
-작업을 정해진 순서대로 이어 간다. 이전 에이전트의 출력은 다음 에이전트의 입력이 된다.
+---
 
-```
-[분석] → [설계] → [구현] → [검증]
-```
+## 1. Os 6 padrões básicos
 
-**적합:** 각 단계가 이전 단계의 산출물에 크게 의존할 때
+### 1-1. Pipeline (Pipeline)
 
-**예시:** 소설 집필 — 세계관 → 등장인물 → 줄거리 → 집필 → 편집
-
-**주의:** 한 단계가 늦어지면 전체 작업도 늦어진다. 각 단계는 가능한 한 독립적으로 설계한다.
-
-**v2에서 권장하는 실행 모드:** 단계와 항목을 미리 나열할 수 있으면 **워크플로 조율**을 권장하고 `pipeline()`을 사용한다. 각 항목은 앞 단계가 끝나는 대로 다음 단계로 넘어간다. 한 단계의 모든 항목이 끝나기를 기다릴 필요가 없어 전체 실행 시간도 짧아진다. 단계 사이마다 사람이 산출물을 검토해야 한다면 서브에이전트를 차례로 호출한다.
-
-### 1-2. 분산·통합(팬아웃/팬인)
-
-서로 독립적인 작업을 동시에 처리한 뒤 결과를 하나로 합친다.
+Encadeia o trabalho numa ordem definida. A saída do agente anterior vira a entrada do agente seguinte.
 
 ```
-         ┌→ [전문가 A] ─┐
-[분배] → ├→ [전문가 B] ─┼→ [통합]
-         └→ [전문가 C] ─┘
+[Análise] → [Design] → [Implementação] → [Verificação]
 ```
 
-**적합:** 같은 입력을 여러 관점이나 영역에서 각각 분석해야 할 때
+**Adequado:** quando cada etapa depende fortemente do artefato da etapa anterior
 
-**예시:** 종합 조사 — 공식 자료·언론·커뮤니티·배경을 동시에 조사한 뒤 하나의 보고서로 정리
+**Exemplo:** escrita de romance — universo ficcional → personagens → enredo → escrita → edição
 
-**주의:** 결과를 합치는 방식이 전체 품질을 좌우한다.
+**Atenção:** se uma etapa atrasa, o trabalho inteiro atrasa. Desenhe cada etapa da forma mais independente possível.
 
-**v2에서 권장하는 실행 모드:** **워크플로 조율**을 먼저 고려한다. 관점 목록을 배열로 정의해 `pipeline()`으로 보내고, `schema`에 맞춰 결과를 받은 뒤 코드로 합친다. 모든 결과를 모은 뒤 중복을 제거해야 할 때만 `parallel()`을 사용한다. 이때는 모든 병렬 호출이 끝난 뒤 다음 단계로 넘어간다. 조사자가 찾은 내용을 실시간으로 공유해야 하는 2~4명 규모의 조사라면 지속형 에이전트 협업도 알맞다.
+**Modo de execução recomendado na v2:** se as etapas e os itens puderem ser listados de antemão, recomenda-se a **coordenação por workflow**, usando `pipeline()`. Cada item passa para a etapa seguinte assim que a anterior termina. Como não é preciso esperar que todos os itens de uma etapa terminem, o tempo total de execução também diminui. Se for preciso que uma pessoa revise o artefato entre uma etapa e outra, chame subagentes em sequência.
 
-### 1-3. 전문가 풀(Expert Pool)
+### 1-2. Distribuição e integração (fan-out/fan-in)
 
-입력과 상황에 맞는 전문가만 골라 호출한다.
-
-```
-[분류 담당] → { 전문가A | 전문가B | 전문가C }
-```
-
-**적합:** 입력 유형마다 처리 방식이 달라야 할 때
-
-**예시:** 코드 검토 — 보안·성능·아키텍처 전문가 가운데 해당 영역의 전문가만 호출
-
-**주의:** 분류 담당 에이전트가 입력을 잘못 분류하면 알맞은 전문가를 선택할 수 없다.
-
-**v2에서 권장하는 실행 모드:** **서브에이전트 위임**으로 필요한 전문가만 한 번 호출한다. 같은 전문가와 후속 대화를 이어 가야 한다면 `name`을 붙여 지속형 에이전트 협업으로 전환한다.
-
-### 1-4. 생성·검증(Producer-Reviewer)
-
-생성 에이전트와 검증 에이전트가 한 조로 작업한다.
+Processa ao mesmo tempo tarefas independentes entre si e depois junta os resultados em um só.
 
 ```
-[생성] → [검증] → (문제 발견 시) → [생성] 재실행
+                 ┌→ [Especialista A] ─┐
+[Distribuição] → ├→ [Especialista B] ─┼→ [Integração]
+                 └→ [Especialista C] ─┘
 ```
 
-**적합:** 산출물의 품질을 반드시 검증해야 하고, 객관적인 판정 기준을 정할 수 있을 때
+**Adequado:** quando a mesma entrada precisa ser analisada separadamente por várias perspectivas ou áreas
 
-**주의:** 검증과 수정을 끝없이 반복하지 않도록 최대 재시도 횟수를 2~3회로 정한다.
+**Exemplo:** pesquisa abrangente — pesquisar ao mesmo tempo fontes oficiais, imprensa, comunidade e contexto, e depois consolidar em um único relatório
 
-**v2에서 권장하는 실행 모드:** 검증 기준을 코드로 나타낼 수 있으면 **워크플로 조율**을 사용한다. 아래의 적대적 검증 패턴으로 찾은 항목마다 병렬 검증을 수행한다. 주관적인 판단을 조율해야 한다면 생성자와 검증자를 **지속형 에이전트 한 쌍**으로 이름 붙여 실행하고, SendMessage로 피드백을 주고받는다. 생성자는 이전 대화 내용을 유지하므로 지적받은 부분을 정확히 고칠 수 있다.
+**Atenção:** a forma de juntar os resultados determina a qualidade do todo.
 
-### 1-5. 감독자(Supervisor)
+**Modo de execução recomendado na v2:** considere primeiro a **coordenação por workflow**. Defina a lista de perspectivas como um array, envie-a para `pipeline()`, receba os resultados conforme o `schema` e junte-os em código. Use `parallel()` só quando for preciso eliminar duplicatas depois de reunir todos os resultados. Nesse caso, só se passa à etapa seguinte depois que todas as chamadas paralelas terminarem. Para pesquisas com 2 a 4 pessoas em que os pesquisadores precisam compartilhar em tempo real o que encontraram, a colaboração de agentes persistentes também é adequada.
 
-중앙 에이전트가 작업 상태를 관리하고 진행 상황에 맞춰 작업을 나눈다.
+### 1-3. Pool de especialistas (Expert Pool)
 
-```
-         ┌→ [작업자 A]
-[감독자] ─┼→ [작업자 B]    ← 진행 상황에 따라 분배
-         └→ [작업자 C]
-```
-
-**적합:** 작업량이 계속 달라지거나, 실행 중에 작업을 어떻게 나눌지 결정해야 할 때
-
-**분산 실행과의 차이:** 분산 실행은 작업을 시작하기 전에 배분 방식을 정한다. 감독자는 진행 상황을 보고 작업을 다시 배분한다.
-
-**주의:** 작업을 너무 잘게 나누면 감독자가 자주 다시 배분해야 하므로 병목이 된다.
-
-**v2에서 권장하는 실행 모드:** **지속형 에이전트 협업**을 사용한다. 리더인 메인 에이전트가 `TaskCreate`로 작업을 등록하고, 작업자의 완료 알림을 받은 뒤 `SendMessage`와 `TaskUpdate`로 작업을 다시 배분한다. 작업 목록을 미리 확정할 수 있고 배분 절차도 코드로 작성할 수 있다면 워크플로 조율로 전환한다. 이런 경우에는 감독자가 따로 판단할 일이 없기 때문이다.
-
-### 1-6. 계층형 위임(Hierarchical Delegation)
-
-위임받은 에이전트가 다시 하위 에이전트에게 일을 맡긴다. 복잡한 문제를 여러 단계로 나눌 때 쓰는 방식이다.
+Escolhe e chama só os especialistas adequados à entrada e à situação.
 
 ```
-[총괄] → [팀장 A] → [실무자 A1, A2]
-       → [팀장 B] → [실무자 B1]
+[Classificador] → { EspecialistaA | EspecialistaB | EspecialistaC }
 ```
 
-**적합:** 문제를 상위 작업과 하위 작업으로 자연스럽게 나눌 수 있을 때
+**Adequado:** quando cada tipo de entrada exige uma forma de tratamento diferente
 
-**주의:** 세 단계 이상 깊어지면 실행이 늦어지고 이전 작업 내용이 제대로 전달되지 않을 수 있다. **두 단계 이내를 권장한다.**
+**Exemplo:** revisão de código — entre os especialistas em segurança, desempenho e arquitetura, chamar só o da área em questão
 
-**v2에서 권장하는 실행 모드:** 워크플로를 중첩해 조율한다. 상위 워크플로가 `workflow(nameOrRef, args)`로 하위 워크플로를 호출한다. 중첩 호출은 한 단계만 지원하므로 계층이 지나치게 깊어지는 것을 막을 수 있다. 또는 계층을 없애고 단일 워크플로의 `phase()`로 다시 구성한다.
+**Atenção:** se o agente classificador classificar mal a entrada, não dá para escolher o especialista adequado.
 
-## 2. 품질 검증 패턴(v2에서 추가)
+**Modo de execução recomendado na v2:** com a **delegação a subagentes**, chame uma vez só os especialistas necessários. Se for preciso continuar uma conversa de seguimento com o mesmo especialista, dê `name` e passe para a colaboração de agentes persistentes.
 
-산출물의 정확성이 중요한 하네스에 추가하는 워크플로 검증 패턴이다. 얼핏 맞아 보이지만 실제로는 틀린 결과를 걸러내는 데 목적이 있다.
+### 1-4. Geração e verificação (Producer-Reviewer)
 
-| 패턴 | 구조 | 사용할 때 |
+Um agente gerador e um agente verificador trabalham em dupla.
+
+```
+[Geração] → [Verificação] → (se encontrar problema) → reexecuta [Geração]
+```
+
+**Adequado:** quando a qualidade do artefato precisa obrigatoriamente ser verificada e é possível definir critérios objetivos de julgamento
+
+**Atenção:** para não repetir verificação e correção indefinidamente, fixe o número máximo de novas tentativas em 2 a 3.
+
+**Modo de execução recomendado na v2:** se o critério de verificação puder ser expresso em código, use a **coordenação por workflow**. Com o padrão de verificação adversarial abaixo, faça verificação paralela de cada item encontrado. Se for preciso conciliar julgamentos subjetivos, execute o gerador e o verificador como **um par de agentes persistentes** com nome e troque feedback por SendMessage. Como o gerador mantém o conteúdo das conversas anteriores, consegue corrigir com precisão o trecho apontado.
+
+### 1-5. Supervisor (Supervisor)
+
+Um agente central gerencia o estado do trabalho e divide as tarefas conforme o andamento.
+
+```
+              ┌→ [Executor A]
+[Supervisor] ─┼→ [Executor B]    ← distribui conforme o andamento
+              └→ [Executor C]
+```
+
+**Adequado:** quando o volume de trabalho varia continuamente, ou quando é preciso decidir durante a execução como dividir as tarefas
+
+**Diferença em relação à execução distribuída:** a execução distribuída define a forma de distribuição antes de começar o trabalho. O supervisor observa o andamento e redistribui as tarefas.
+
+**Atenção:** se as tarefas forem divididas em pedaços pequenos demais, o supervisor precisa redistribuir com frequência e vira gargalo.
+
+**Modo de execução recomendado na v2:** use a **colaboração de agentes persistentes**. O agente principal, como líder, registra as tarefas com `TaskCreate`, recebe as notificações de conclusão dos executores e redistribui as tarefas com `SendMessage` e `TaskUpdate`. Se a lista de tarefas puder ser fechada de antemão e o procedimento de distribuição também puder ser escrito em código, passe para a coordenação por workflow, porque nesse caso não sobra nada para o supervisor julgar.
+
+### 1-6. Delegação hierárquica (Hierarchical Delegation)
+
+O agente que recebeu a delegação repassa o trabalho a agentes subordinados. É a forma usada para dividir um problema complexo em vários níveis.
+
+```
+[Coordenação geral] → [Chefe de equipe A] → [Executores A1, A2]
+                    → [Chefe de equipe B] → [Executor B1]
+```
+
+**Adequado:** quando o problema se divide naturalmente em tarefas superiores e subordinadas
+
+**Atenção:** com três ou mais níveis de profundidade, a execução fica lenta e o conteúdo do trabalho anterior pode não ser transmitido direito. **Recomenda-se no máximo dois níveis.**
+
+**Modo de execução recomendado na v2:** coordene aninhando workflows. O workflow superior chama o workflow subordinado com `workflow(nameOrRef, args)`. Como a chamada aninhada só suporta um nível, isso impede que a hierarquia fique profunda demais. Alternativamente, elimine a hierarquia e reorganize tudo com `phase()` dentro de um único workflow.
+
+## 2. Padrões de verificação de qualidade (acrescentados na v2)
+
+São padrões de verificação por workflow acrescentados a harnesses em que a exatidão do artefato importa. O objetivo é filtrar resultados que à primeira vista parecem certos mas na verdade estão errados.
+
+| Padrão | Estrutura | Quando usar |
 |------|------|------|
-| **적대적 검증** | 찾은 항목 한 건마다 독립된 적대적 검증 에이전트 N명을 실행한다. N명 중 절반이 넘는 에이전트가 근거가 충분하다고 `confirmed`로 판정한 항목만 통과시킨다. | 찾은 내용이나 주장을 신뢰할 수 있어야 할 때(검토·감사·조사) |
-| **관점 분산 검증** | 적대적 검증 에이전트 N명에게 같은 프롬프트를 주지 않고 정확성·보안·재현성처럼 서로 다른 관점을 맡긴다. | 오류가 여러 유형으로 생길 수 있을 때. 검증 기준을 나누면 같은 검증을 되풀이할 때 놓치는 오류를 찾을 수 있다. |
-| **심사위원단** | 서로 다른 접근으로 만든 시안 N개를 병렬로 심사한다. 가장 높은 평가를 받은 시안을 바탕으로 다른 시안의 장점도 필요한 부분에 반영해 최종안을 작성한다. | 가능한 해법이 많은 설계나 기획. 한 시안을 거듭 고치는 것보다 여러 시안을 비교하는 편이 낫다. |
-| **새 항목이 없을 때까지 반복(Loop-until-dry)** | 새로 찾은 항목이 K회 연속 0건일 때까지 탐색을 반복한다. 기각된 항목도 `seen`에 기록해 같은 항목이 되풀이해서 제안되는 것을 막는다. | 얼마나 많은 문제가 있을지 알 수 없는 탐색(버그·이슈·경계 사례). 횟수를 미리 정하면 추가로 발견될 문제를 놓칠 수 있다. |
-| **여러 기준으로 탐색** | 컨테이너·내용·개체·시간처럼 서로 다른 기준으로 탐색하는 에이전트를 병렬로 실행한다. | 한 가지 탐색 기준만으로는 빠짐없이 찾을 수 없을 때 |
-| **누락 검토** | 마지막에 "어떤 탐색 기준을 쓰지 않았는가, 검증하지 않은 주장은 무엇인가, 읽지 않은 자료는 무엇인가?"만 확인하는 에이전트 한 명을 둔다. | 결과를 합치기 직전. 새로 찾은 누락 항목은 다음 탐색 작업에 넣는다. |
-| **제외한 항목 수 공개** | `top-N`이나 샘플링으로 확인 범위를 제한하면 제외한 항목 수를 반드시 `log()`로 기록한다. | 모든 분산 실행. 제외한 수를 밝히지 않으면 사용자는 전체를 확인한 것으로 잘못 이해한다. |
+| **Verificação adversarial** | Para cada item encontrado, executa N agentes de verificação adversarial independentes. Só passam os itens que mais da metade dos N agentes julgou `confirmed`, por terem evidência suficiente. | Quando é preciso poder confiar no que foi encontrado ou nas afirmações (revisão, auditoria, pesquisa) |
+| **Verificação com perspectivas distribuídas** | Em vez de dar o mesmo prompt aos N agentes de verificação adversarial, atribui a cada um uma perspectiva diferente, como exatidão, segurança e reprodutibilidade. | Quando os erros podem surgir de vários tipos. Dividindo os critérios de verificação, é possível encontrar erros que escapam quando se repete a mesma verificação. |
+| **Banca julgadora** | Julga em paralelo N propostas feitas por abordagens diferentes. Com base na proposta mais bem avaliada, incorpora também, onde necessário, os pontos fortes das outras para redigir a versão final. | Design ou planejamento com muitas soluções possíveis. Comparar várias propostas é melhor do que corrigir uma única repetidamente. |
+| **Repetir até não surgir item novo (Loop-until-dry)** | Repete a busca até que os itens novos encontrados sejam 0 por K vezes seguidas. Registra também os itens rejeitados em `seen` para impedir que o mesmo item seja proposto repetidamente. | Buscas em que não se sabe quantos problemas existem (bugs, issues, casos de fronteira). Fixar o número de rodadas de antemão pode fazer perder problemas que ainda seriam encontrados. |
+| **Busca por vários critérios** | Executa em paralelo agentes que buscam por critérios diferentes, como contêiner, conteúdo, entidade e tempo. | Quando um único critério de busca não basta para encontrar tudo |
+| **Revisão de omissões** | No final, põe um único agente que só verifica: "que critério de busca não foi usado, que afirmação não foi verificada, que material não foi lido?". | Logo antes de juntar os resultados. Os itens omitidos encontrados entram na tarefa de busca seguinte. |
+| **Divulgação do número de itens excluídos** | Se o alcance da verificação for limitado por `top-N` ou amostragem, registre obrigatoriamente com `log()` o número de itens excluídos. | Toda execução distribuída. Se o número de excluídos não for declarado, o usuário entende erroneamente que tudo foi verificado. |
 
-**규모 조정 원칙:** 사용자가 요청한 조사 범위에 맞춰 규모를 정한다. "버그가 있는지 봐줘"라면 소수의 탐색자와 적대적 검증 에이전트 한 명으로 구성한다. "철저히 감사해줘"라면 탐색자를 늘리고, 찾은 항목마다 적대적 검증 에이전트 3~5명에게 검증을 맡긴 뒤 종합 단계를 거친다. 요청 범위를 판단하기 어렵다면 조사·검토·감사는 꼼꼼하게 수행하고, 빠른 확인은 작은 규모로 진행한다.
+**Princípio de ajuste de escala:** defina a escala conforme o escopo de pesquisa pedido pelo usuário. Para "vê se tem bug", monte com poucos buscadores e um agente de verificação adversarial. Para "faz uma auditoria a fundo", aumente os buscadores, entregue a verificação de cada item encontrado a 3 a 5 agentes de verificação adversarial e passe por uma etapa de síntese. Se for difícil julgar o escopo do pedido, faça pesquisas, revisões e auditorias com minúcia, e verificações rápidas em escala pequena.
 
-> 구현 예시는 `workflow-recipes.md`에 있다.
+> Os exemplos de implementação estão em `workflow-recipes.md`.
 
-## 3. 복합 패턴
+## 3. Padrões compostos
 
-실제 작업에서는 여러 패턴을 조합한다.
+No trabalho real, vários padrões são combinados.
 
-| 복합 패턴 | 구성 | 예시 |
+| Padrão composto | Composição | Exemplo |
 |----------|------|------|
-| **분산·통합 + 생성·검증** | 여러 시안을 동시에 만든 뒤 각각 검증 | 다국어 번역 — 네 가지 언어로 병렬 번역한 뒤 언어별 원어민 검토자가 검수 |
-| **파이프라인 + 분산·통합** | 순차 단계 가운데 일부를 병렬로 처리 | 분석(순차) → 구현(병렬) → 통합 테스트(순차) |
-| **감독자 + 전문가 풀** | 감독자가 상황에 맞는 전문가를 호출 | 고객 문의 처리 — 감독자가 문의를 분류한 뒤 알맞은 전문가에게 배정 |
-| **탐색 + 적대적 검증 + 종합** | 여러 기준으로 탐색 → 찾은 항목별 검증 → 누락 검토 → 보고서 작성 | 종합 코드 감사, 심층 조사 |
+| **Distribuição e integração + geração e verificação** | Faz várias propostas ao mesmo tempo e verifica cada uma | Tradução multilíngue — traduz em paralelo para quatro idiomas e depois um revisor nativo de cada idioma confere |
+| **Pipeline + distribuição e integração** | Processa em paralelo parte das etapas sequenciais | Análise (sequencial) → implementação (paralela) → teste de integração (sequencial) |
+| **Supervisor + pool de especialistas** | O supervisor chama o especialista adequado à situação | Atendimento a clientes — o supervisor classifica a solicitação e a atribui ao especialista adequado |
+| **Busca + verificação adversarial + síntese** | Busca por vários critérios → verificação por item encontrado → revisão de omissões → redação do relatório | Auditoria abrangente de código, pesquisa aprofundada |
 
-복합 패턴에서는 단계마다 알맞은 실행 모드를 고른다. 이런 구성을 혼합 모드라고 한다. 해당 단계의 제어 흐름을 미리 코드로 정할 수 있는지가 선택 기준이다.
+Nos padrões compostos, escolha o modo de execução adequado a cada etapa. Essa composição se chama modo misto. O critério de escolha é se o fluxo de controle da etapa pode ser definido de antemão em código.
 
-## 4. 에이전트 유형 선택
+## 4. Escolha do tipo de agente
 
-에이전트를 호출할 때는 Agent 도구의 `subagent_type` 또는 Workflow의 `agentType` 매개변수로 유형을 지정한다.
+Ao chamar um agente, indique o tipo pelo parâmetro `subagent_type` da ferramenta Agent ou `agentType` do Workflow.
 
-### 기본 제공 유형
+### Tipos nativos
 
-| 유형 | 사용할 수 있는 도구 | 알맞은 용도 |
+| Tipo | Ferramentas disponíveis | Uso adequado |
 |------|----------|-----------|
-| `general-purpose` | 전체(WebSearch, WebFetch 포함) | 웹 조사, 일반 작업, 파일 수정 |
-| `Explore` | 읽기 전용(Edit, Write 제외) | 코드베이스에서 코드 위치 찾기. 검토나 감사에는 사용하지 않는다. |
-| `Plan` | 읽기 전용(Edit, Write 제외) | 아키텍처 설계, 구현 계획 작성 |
+| `general-purpose` | Todas (incluindo WebSearch, WebFetch) | Pesquisa na web, tarefas gerais, alteração de arquivos |
+| `Explore` | Somente leitura (sem Edit, Write) | Localizar código em uma base de código. Não é usado para revisão nem auditoria. |
+| `Plan` | Somente leitura (sem Edit, Write) | Design de arquitetura, elaboração de plano de implementação |
 
-### 사용자 정의 유형
+### Tipos personalizados
 
-`.claude/agents/{name}.md`에 유형을 정의한다. 호출할 때는 `subagent_type: "{name}"` 또는 `agentType: "{name}"`을 지정한다. YAML 프론트매터(머리말)에서 사용할 도구와 모델을 정한다.
+Defina o tipo em `.claude/agents/{name}.md`. Ao chamar, indique `subagent_type: "{name}"` ou `agentType: "{name}"`. As ferramentas e o modelo a usar são definidos no frontmatter YAML (cabeçalho).
 
-### 선택 기준
+### Critérios de escolha
 
-| 상황 | 권장 | 이유 |
+| Situação | Recomendado | Motivo |
 |------|------|------|
-| 역할이 복잡하고 여러 세션에서 반복 사용 | **사용자 정의 유형** | 전문가 역할과 작업 원칙을 파일에서 일관되게 관리한다. |
-| 간단한 일회성 조사·수집이며 자세한 프롬프트만으로 충분 | `general-purpose` + 자세한 프롬프트 | 별도 정의 파일 없이 기본 제공 유형을 직접 사용한다. |
-| 코드 위치만 탐색 | `Explore` | 파일 수정 도구가 없어 잘못 고칠 위험이 없다. |
-| 설계나 계획만 작성 | `Plan` | 코드 변경 없이 분석에만 집중한다. |
-| 간단한 일회성 파일 수정 | `general-purpose` + 자세한 프롬프트 | 기본 제공 유형으로 바로 처리한다. |
-| 반복 사용하거나 전문 규칙이 필요한 구현 | **사용자 정의 유형** | 필요한 도구를 모두 허용하고 전문 지침을 적용한다. |
-| 여러 파일을 병렬로 수정 | 사용자 정의 유형 + `isolation: 'worktree'` | 에이전트 간 파일 수정 충돌을 막는다. 작업 트리를 만드는 비용이 있으므로 병렬로 수정할 때만 사용한다. |
+| Papel complexo, usado repetidamente em várias sessões | **Tipo personalizado** | Gerencia de forma consistente, em arquivo, o papel do especialista e os princípios de trabalho. |
+| Pesquisa ou coleta simples e pontual, em que um prompt detalhado basta | `general-purpose` + prompt detalhado | Usa diretamente o tipo nativo, sem arquivo de definição à parte. |
+| Só localizar código | `Explore` | Não tem ferramentas de alteração de arquivos, então não há risco de alterar algo por engano. |
+| Só elaborar design ou plano | `Plan` | Concentra-se só na análise, sem alterar código. |
+| Alteração simples e pontual de arquivo | `general-purpose` + prompt detalhado | Resolve direto com o tipo nativo. |
+| Implementação usada repetidamente ou que exige regras especializadas | **Tipo personalizado** | Libera todas as ferramentas necessárias e aplica as diretrizes especializadas. |
+| Alterar vários arquivos em paralelo | Tipo personalizado + `isolation: 'worktree'` | Evita conflito de alterações de arquivos entre agentes. Como criar a árvore de trabalho tem custo, use só quando a alteração for em paralelo. |
 
-**원칙:** 여러 세션에서 재사용할 전문가 역할은 `.claude/agents/{name}.md`에 사용자 정의 유형으로 만든다. 기본 제공 유형을 그대로 쓰는 단발 작업에는 별도 정의 파일을 만들지 않는다.
+**Princípio:** papéis de especialista que serão reutilizados em várias sessões são criados como tipo personalizado em `.claude/agents/{name}.md`. Para tarefas pontuais que usam um tipo nativo tal como é, não crie arquivo de definição à parte.
 
-**모델 정책:** 업무 복잡도, 예상 작업 기간, 스스로 판단해야 하는 범위, 필요한 응답 속도를 기준으로 모델 등급을 고른다. **fable**은 계획을 세워 장기간 자율적으로 실행해야 하는 최고 난도 작업과 에이전트 조율에 쓴다. **opus**는 설계·아키텍처, 코드 생성, 복잡한 분석, 교차 검증, 창작에 쓴다. **sonnet**은 로그 분석, 형식 변환, 정적 파일 검사, 배포 스크립트 실행, 단순 수집처럼 판단할 일이 적은 정형 작업에 쓴다. 판단하기 어렵다면 sonnet을 선택한다. 모든 에이전트에 같은 모델을 근거 없이 지정하지 말고, 선택 이유를 주석으로 남긴다. 자세한 기준은 `model-selection-guide.md`에 있다.
+**Política de modelos:** escolha a categoria de modelo pela complexidade do trabalho, pela duração prevista, pela margem de decisão própria exigida e pela velocidade de resposta necessária. Use **fable** em trabalhos de máxima dificuldade que exigem montar um plano e executá-lo de forma autônoma por longo período, e na coordenação de agentes. Use **opus** em design e arquitetura, geração de código, análises complexas, verificação cruzada e criação. Use **sonnet** em trabalhos padronizados com pouco a julgar, como análise de logs, conversão de formato, inspeção de arquivos estáticos, execução de scripts de deploy e coleta simples. Se for difícil decidir, escolha sonnet. Não atribua sem justificativa o mesmo modelo a todos os agentes, e deixe o motivo da escolha como comentário. Os critérios detalhados estão em `model-selection-guide.md`.
 
-## 5. 에이전트 정의 구조
+## 5. Estrutura da definição de agente
 
 ```markdown
 ---
 name: agent-name
-description: "역할을 한두 문장으로 설명하고 호출 조건이 되는 표현을 나열한다."
-# tools: Read, Grep, Glob, Bash        ← 선택: 사용할 도구를 제한할 때 지정(읽기 전용 검토자 등)
-#                                         산출물을 고치는 에이전트에는 Write와 함께 Edit도 넣는다
-# model: sonnet                         ← 작업 특성에 맞게 선택(model-selection-guide.md), 선택 이유를 주석으로 기록
+description: "Descreva o papel em uma ou duas frases e liste as expressões que servem de condição de acionamento."
+# tools: Read, Grep, Glob, Bash        ← opcional: indique quando for restringir as ferramentas (revisor somente leitura etc.)
+#                                         em agentes que alteram artefatos, inclua Edit junto com Write
+# model: sonnet                         ← escolha conforme a natureza do trabalho (model-selection-guide.md) e registre o motivo da escolha como comentário
 ---
 
-# Agent Name — 역할 한 줄 요약
+# Agent Name — resumo do papel em uma linha
 
-당신은 [도메인]의 [역할] 전문가다.
+Você é especialista em [papel] de [domínio].
 
-## 핵심 역할
-1. 역할1
-2. 역할2
+## Papel central
+1. Papel1
+2. Papel2
 
-## 작업 원칙
-- 원칙1(이유도 함께 적는다. 그래야 예외 상황에서도 같은 기준으로 판단한다.)
-- 원칙2
+## Princípios de trabalho
+- Princípio1 (escreva também o motivo. Assim, mesmo em situações de exceção, o julgamento segue o mesmo critério.)
+- Princípio2
 
-## 입력·출력 규칙
-- 입력: [어디서 무엇을 받는지 — 파일 경로, args, 이전 단계 산출물]
-- 출력: [어디에 무엇을 쓰는지 — _workspace/ 경로 또는 구조화된 반환값]
-- 형식: [파일 형식, 구조, 스키마]
+## Regras de entrada e saída
+- Entrada: [de onde recebe o quê — caminho de arquivo, args, artefato da etapa anterior]
+- Saída: [onde escreve o quê — caminho em _workspace/ ou valor de retorno estruturado]
+- Formato: [formato de arquivo, estrutura, schema]
 
-## 통신 규칙(지속형 에이전트 협업)
-- 첫 보고: 실제로 쓸 수 있는 도구 목록을 리더에게 알린다(`tools`에 적은 도구가 빠졌는지 확인하기 위해)
-- 메시지 수신: [누구로부터 어떤 메시지를 받는지]
-- 메시지 발신: [누구에게 어떤 메시지를 보내는지]
-- 공유 작업: [어떤 유형의 작업을 등록하거나 요청하는지]
+## Regras de comunicação (colaboração de agentes persistentes)
+- Primeiro relatório: informar ao líder a lista das ferramentas realmente disponíveis (para verificar se faltou alguma ferramenta listada em `tools`)
+- Recebimento de mensagens: [de quem recebe que mensagens]
+- Envio de mensagens: [para quem envia que mensagens]
+- Tarefas compartilhadas: [que tipos de tarefa registra ou solicita]
 
-## 다시 호출할 때
-- 이전 산출물이 있으면 읽고 개선점을 반영한다.
-- 사용자 피드백을 받으면 해당 부분만 수정한다.
+## Ao ser chamado de novo
+- Se houver artefato anterior, leia-o e incorpore as melhorias.
+- Se receber feedback do usuário, corrija só o trecho correspondente.
 
-## 오류 처리
-- [실패했을 때 할 일]
-- [입력이 없거나 모호할 때 할 일]
+## Tratamento de erros
+- [o que fazer em caso de falha]
+- [o que fazer quando a entrada estiver ausente ou ambígua]
 
-## 협업
-- 다른 에이전트와의 관계
+## Colaboração
+- Relação com os outros agentes
 ```
 
-**워크플로 전용 에이전트:** "통신 규칙" 대신 "구조화 출력" 항목을 넣는다. 반환할 JSON 구조를 명시하고, 최종 텍스트는 사용자에게 보내는 메시지가 아니라 **반환 데이터**라고 적는다.
+**Agentes exclusivos de workflow:** em vez do item "Regras de comunicação", inclua o item "Saída estruturada". Especifique a estrutura JSON a devolver e escreva que o texto final não é uma mensagem enviada ao usuário, e sim **dados de retorno**.
 
-**`tools`를 제한할 때 주의할 점:**
+**Pontos de atenção ao restringir `tools`:**
 
-- 산출물을 고치는 에이전트에는 Write와 함께 Edit도 준다. Write만 있으면 한 줄을 고칠 때도 파일 전체를 다시 써야 한다. 산출물이 크면 에이전트가 수정을 포기하고 다른 파일에 따로 적어 우회하므로, 원래 산출물은 고쳐지지 않은 채 남는다.
-- `TaskCreate`, `TaskUpdate` 같은 지연 로딩 도구는 `tools`에 적어도 실행할 때 주어지지 않은 사례가 있다(Claude Code 2.1.226에서 관찰했으며 환경에 따라 다를 수 있다). 같은 지연 로딩 도구인 `SendMessage`는 주어졌으므로 어떤 도구가 빠지는지 경계는 분명하지 않다. 지속형 에이전트에게는 첫 보고에서 실제로 쓸 수 있는 도구 목록을 알리게 한다. 빠진 도구가 있으면 오케스트레이터가 그 작업을 대신 처리하거나(예: 리더가 `TaskUpdate`로 작업 상태를 갱신) 정의 파일의 `tools` 제한을 푼다.
+- Em agentes que alteram artefatos, dê Edit junto com Write. Só com Write, até para corrigir uma linha é preciso reescrever o arquivo inteiro. Se o artefato for grande, o agente desiste da correção e contorna escrevendo à parte em outro arquivo, de modo que o artefato original fica sem correção.
+- Há casos em que ferramentas de carregamento tardio, como `TaskCreate` e `TaskUpdate`, não são fornecidas na execução mesmo listadas em `tools` (observado no Claude Code 2.1.226; pode variar conforme o ambiente). Como `SendMessage`, também uma ferramenta de carregamento tardio, foi fornecida, a fronteira de quais ferramentas ficam de fora não é clara. Faça os agentes persistentes informarem, no primeiro relatório, a lista das ferramentas realmente disponíveis. Se faltar alguma ferramenta, o orquestrador assume essa tarefa no lugar dele (ex.: o líder atualiza o estado da tarefa com `TaskUpdate`) ou retira a restrição de `tools` do arquivo de definição.
 
-## 6. 에이전트 분리 기준
+## 6. Critérios para separar agentes
 
-| 기준 | 분리 | 통합 |
+| Critério | Separar | Unir |
 |------|------|------|
-| 전문성 | 담당 영역이 다르면 분리 | 담당 영역이 겹치면 통합 |
-| 병렬성 | 서로 독립적으로 실행할 수 있으면 분리 | 순서대로 처리해야 하면 통합을 검토 |
-| 필요한 정보 | 한 에이전트가 처리할 정보가 많으면 분리 | 필요한 정보가 적고 작업이 짧으면 통합 |
-| 재사용성 | 다른 팀에서도 다시 쓸 수 있으면 분리 | 이 팀에서만 쓴다면 통합을 검토 |
+| Especialidade | Separe se as áreas de responsabilidade forem diferentes | Una se as áreas de responsabilidade se sobrepuserem |
+| Paralelismo | Separe se puderem ser executados de forma independente | Avalie unir se precisarem ser processados em sequência |
+| Informação necessária | Separe se um agente tiver informação demais para processar | Una se a informação necessária for pouca e a tarefa curta |
+| Reutilização | Separe se puder ser reutilizado também por outros times | Avalie unir se for usado só neste time |
 
-## 7. 에이전트 재사용 설계
+## 7. Design de reutilização de agentes
 
-새 에이전트를 만들기 전에 `.claude/agents/`의 기존 에이전트와 역할을 비교한다. 하네스를 여러 번 구축하거나 확장하면 같은 역할의 에이전트가 이름만 달리해 쌓일 수 있다.
+Antes de criar um agente novo, compare o papel dele com os agentes existentes em `.claude/agents/`. Quando o harness é construído ou ampliado várias vezes, agentes com o mesmo papel podem se acumular só com nomes diferentes.
 
-| 기존 에이전트와의 관계 | 조치 |
+| Relação com o agente existente | Ação |
 |------|------|
-| 기존 에이전트가 새 역할을 모두 포함한다 | 새로 만들지 않고 기존 에이전트를 호출한다. |
-| 일부만 겹치고, 기존 에이전트를 일반화하면 새 역할까지 맡을 수 있다 | 기존 에이전트를 일반화해 확장한다. |
-| 일부 겹치지만 도메인을 의도적으로 특화했다 | 별도 에이전트로 새로 만든다. |
-| 역할 범위가 전혀 다르다 | 새로 만든다. |
+| O agente existente já cobre todo o papel novo | Não crie outro; chame o agente existente. |
+| Sobrepõe-se só em parte, e generalizando o agente existente ele assume também o papel novo | Generalize e amplie o agente existente. |
+| Sobrepõe-se em parte, mas o domínio foi especializado de propósito | Crie um agente separado. |
+| O escopo do papel é completamente diferente | Crie um novo. |
 
-**원칙:** 한 에이전트가 한 가지 역할에 집중할수록 다시 쓰기 쉽고 중복이 줄어든다. 확장한 결과 역할이 두 가지 이상이 되면 나눌 수 있는지 먼저 검토한다.
+**Princípio:** quanto mais um agente se concentra em um único papel, mais fácil é reutilizá-lo e menos duplicação há. Se, como resultado da ampliação, ele passar a ter dois ou mais papéis, avalie primeiro se dá para dividi-lo.
 
-**기존 에이전트를 확장할 때:** 그 에이전트를 호출하는 오케스트레이터의 동작도 바뀔 수 있다. 확장하기 전에 어느 오케스트레이터가 이 에이전트를 호출하는지 확인하고, 넓어진 역할을 `description`에 반영한다. 확장한 뒤에는 모의 실행(`SKILL.md` 6-5단계)으로 기존 흐름이 그대로 동작하는지 확인한다.
+**Ao ampliar um agente existente:** o comportamento dos orquestradores que chamam esse agente também pode mudar. Antes de ampliar, verifique quais orquestradores chamam este agente e reflita na `description` o papel ampliado. Depois de ampliar, confirme com uma simulação de execução (etapa 6-5 do `modo-direto.md`) que o fluxo existente continua funcionando como antes.
 
-## 8. 스킬과 에이전트 구분
+## 8. Distinção entre skill e agente
 
-| 구분 | 스킬(Skill) | 에이전트(Agent) |
+| Aspecto | Skill (Skill) | Agente (Agent) |
 |------|-------------|-----------------|
-| 정의 | 작업 절차와 도구 모음 | 전문가 역할과 행동 원칙 |
-| 위치 | `.claude/skills/` | `.claude/agents/` |
-| 실행 조건 | 사용자 요청이 `description`에 적은 적용 조건에 맞을 때 | Agent 또는 Workflow 도구로 직접 호출할 때 |
-| 용도 | "어떻게 하는가" | "누가 하는가" |
+| Definição | Procedimento de trabalho e conjunto de ferramentas | Papel de especialista e princípios de conduta |
+| Local | `.claude/skills/` | `.claude/agents/` |
+| Condição de execução | Quando o pedido do usuário corresponde às condições de aplicação escritas na `description` | Quando é chamado diretamente pela ferramenta Agent ou Workflow |
+| Uso | "Como se faz" | "Quem faz" |
 
-### 스킬과 에이전트를 연결하는 방식
+### Formas de ligar skills e agentes
 
-| 방식 | 구현 | 적합한 경우 |
+| Forma | Implementação | Caso adequado |
 |------|------|-----------|
-| **Skill 도구 호출** | 에이전트 프롬프트에 `Skill 도구로 /skill-name 호출`이라고 명시 | 스킬이 독립된 워크플로이며 사용자가 직접 호출할 수도 있을 때 |
-| **프롬프트에 직접 포함** | 에이전트 정의에 스킬 내용을 직접 작성 | 스킬이 50줄 이하로 짧고 해당 에이전트만 사용할 때 |
-| **참고 파일 불러오기** | 필요할 때만 `Read`로 스킬의 `references/` 파일을 읽음 | 스킬 내용이 많고 특정 조건에서만 필요할 때 |
+| **Chamada pela ferramenta Skill** | Especificar no prompt do agente `chamar /skill-name pela ferramenta Skill` | Quando o skill é um workflow independente que o usuário também pode chamar diretamente |
+| **Inclusão direta no prompt** | Escrever o conteúdo do skill diretamente na definição do agente | Quando o skill é curto, com 50 linhas ou menos, e só esse agente o usa |
+| **Carregar arquivos de referência** | Ler com `Read` os arquivos de `references/` do skill só quando necessário | Quando o skill tem muito conteúdo e só é necessário em certas condições |
 
-여러 에이전트가 함께 쓰는 스킬은 Skill 도구로 호출한다. 특정 에이전트만 쓰는 짧은 스킬은 프롬프트에 직접 넣고, 내용이 많다면 필요한 참고 파일만 불러온다.
+Skills usados em conjunto por vários agentes são chamados pela ferramenta Skill. Skills curtos usados só por um agente específico são colocados diretamente no prompt e, se tiverem muito conteúdo, carregam-se só os arquivos de referência necessários.

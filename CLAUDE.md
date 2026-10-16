@@ -10,6 +10,7 @@ Plugin de Claude Code que constrói e evolui harnesses de agentes para usuários
 ## Regras que não mudam
 
 - **Fork absorvido, não wrapper:** nada aqui depende dos repositórios de origem em runtime. Atribuições em `ATTRIBUTION.md`; toda cópia nova de terceiros exige licença compatível + atualização do ATTRIBUTION.
+- **Língua padrão: português** (decisão do dono, 16/10/2026). Motor e workshop foram traduzidos fielmente (coreano/inglês → PT); os originais vivem nos `_original-*.md` e no histórico git. Mudanças de conteúdo nunca se disfarçam de tradução: alterar uma regra vendorizada continua sendo adaptação declarada no CHANGELOG.
 - De `hookify` e `plugin-dev` (Anthropic): **zero cópia literal** (licença não confirmada), só conceito reescrito.
 - Facilitação ao usuário final: na língua dele, sem jargão não traduzido, 1–3 perguntas por vez.
 - Harnesses gerados: layout método-portável (`metodo/` separado de `.claude/`), cálculos em código (Python), agnóstico de modelo, nunca bash puro sem alternativa Windows.

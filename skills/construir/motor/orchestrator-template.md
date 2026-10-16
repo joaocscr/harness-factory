@@ -1,295 +1,295 @@
-# 오케스트레이터 스킬 템플릿(v2)
+# Template de skill orquestrador (v2)
 
-오케스트레이터는 팀 전체를 조율한다. 실행 모드에 따라 세 가지 템플릿을 제공하고, 단계별로 실행 모드를 조합하는 방법도 함께 설명한다.
+O orquestrador coordena o time inteiro. Conforme o modo de execução, são oferecidos três templates, e também se explica como combinar modos de execução por etapa.
 
-- **템플릿 A: 워크플로 조율** — 제어 흐름이 미리 정해진 대규모 분산 실행이나 반복 검증
-- **템플릿 B: 지속형 에이전트 협업** — 에이전트가 이전 대화 내용을 유지해야 하는 반복 피드백·협상·장기 협업
-- **템플릿 C: 서브에이전트 위임** — 독립 작업을 한 번씩 병렬로 맡기고 결과만 수집
-- **혼합 모드** — 단계마다 알맞은 실행 모드를 조합
+- **Template A: coordenação por workflow** — execução distribuída em grande escala ou verificação repetida, com fluxo de controle definido de antemão
+- **Template B: colaboração de agentes persistentes** — feedback repetido, negociação e colaboração de longa duração, em que os agentes precisam manter o conteúdo das conversas anteriores
+- **Template C: delegação a subagentes** — entregar tarefas independentes uma vez cada, em paralelo, e só coletar os resultados
+- **Modo misto** — combinar o modo de execução adequado a cada etapa
 
-모든 템플릿은 0단계에서 기존 작업 내용을 확인한다. `_workspace/` 파일 구성 규칙, 오류 처리 방법, 테스트 시나리오도 반드시 포함한다.
+Todos os templates verificam na etapa 0 o trabalho já existente. Incluem também, obrigatoriamente, as regras de organização dos arquivos em `_workspace/`, o tratamento de erros e os cenários de teste.
 
 ---
 
-## 템플릿 A: 워크플로 조율
+## Template A: coordenação por workflow
 
 ```markdown
 ---
 name: {domain}-orchestrator
-description: "{도메인} 워크플로를 조율한다. 사용자가 {초기 실행 키워드} 중 하나로 요청하면 사용하며, {도메인} 결과 수정, 부분 재실행, 업데이트, 보완, 다시 실행, 이전 결과 개선 같은 후속 작업에도 사용한다."
+description: "Coordena o workflow de {domínio}. Use quando o usuário pedir com uma das expressões {palavras-chave de execução inicial}, e também em trabalhos de seguimento como corrigir resultado de {domínio}, reexecução parcial, atualização, complemento, executar de novo e melhorar resultado anterior."
 ---
 
-# {Domain} 오케스트레이터
+# Orquestrador de {Domain}
 
-## 실행 모드: 워크플로 조율
+## Modo de execução: coordenação por workflow
 
-이 스킬은 Workflow 도구로 제어 흐름이 미리 정해진 작업을 조율한다. 사용자가 이 스킬을 불러오면
-Workflow 사용에 동의한 것으로 본다. 기본 에이전트 수는 {N}명으로 제한한다. 사용자가
-"철저히", "전수", "모두"를 요청한 경우에만 에이전트 수를 늘린다.
+Este skill coordena, com a ferramenta Workflow, trabalhos cujo fluxo de controle está definido de antemão. Quando o usuário carrega este skill,
+considera-se que ele consentiu com o uso do Workflow. O número padrão de agentes é limitado a {N}. Só aumente o número de agentes
+quando o usuário pedir "a fundo", "levantamento completo" ou "todos".
 
-## 에이전트 구성
+## Composição dos agentes
 
-| 역할 | `agentType` | 스킬 | 산출물(`schema` 요약) |
+| Papel | `agentType` | Skill | Artefato (resumo do `schema`) |
 |------|-----------|------|--------------------|
-| {collector} | {커스텀 또는 기본} | {skill} | {findings: [...]} |
-| {verifier}  | {커스텀 또는 기본} | {skill} | {status, reason} |
+| {collector} | {personalizado ou nativo} | {skill} | {findings: [...]} |
+| {verifier}  | {personalizado ou nativo} | {skill} | {status, reason} |
 
-`{커스텀 또는 기본}`에는 사용자 정의 유형의 이름이나 기본 제공 유형을 적는다.
+Em `{personalizado ou nativo}`, escreva o nome do tipo personalizado ou o tipo nativo.
 
-## 작업 절차
+## Procedimento
 
-### 0단계: 기존 작업 확인(후속 요청 처리)
+### Etapa 0: verificar o trabalho existente (tratamento de pedidos de seguimento)
 
-1. `_workspace/`가 있는지 확인한다.
-   - 없으면 → 처음부터 실행
-   - 있고 일부만 고쳐 달라는 요청이면 → 해당 부분만 다시 실행
-   - 있고 새 입력을 받았으면 → 기존 `_workspace/`를 `_workspace_{ts}/`로 옮기고 새로 실행
-2. 일부만 다시 실행하고 직전 실행의 `runId`가 `_workspace/run_meta.json`에 있으면 다음과 같이 처리한다.
-   - 스크립트에서 해당 단계만 수정한 뒤 `resumeFromRunId`로 재개한다. 내용이 바뀌지 않은 `agent()` 호출은
-     캐시 결과를 즉시 반환하므로 실행 비용이 적다.
-3. 새로 실행하면 새 `runId`를 받아 `_workspace/run_meta.json`에 기록한다.
+1. Verifique se existe `_workspace/`.
+   - Se não existe → executar do zero
+   - Se existe e o pedido é corrigir só uma parte → reexecutar só essa parte
+   - Se existe e chegou entrada nova → mover o `_workspace/` existente para `_workspace_{ts}/` e executar do zero
+2. Se for reexecutar só uma parte e o `runId` da execução anterior estiver em `_workspace/run_meta.json`, proceda assim:
+   - Altere no script só a etapa em questão e retome com `resumeFromRunId`. Chamadas `agent()` cujo conteúdo não mudou
+     devolvem imediatamente o resultado em cache, então o custo de execução é baixo.
+3. Ao executar do zero, receba um `runId` novo e registre-o em `_workspace/run_meta.json`.
 
-### 1단계: 작업 목록 확정(메인 에이전트가 직접 수행)
+### Etapa 1: fechar a lista de tarefas (feita diretamente pelo agente principal)
 
-워크플로를 시작하기 전에 {파일 목록 / 조사 축 / 검토 대상}을 간단히 살펴본 뒤 배열로 정리한다.
-정리한 목록은 `args`로 스크립트에 전달한다.
+Antes de iniciar o workflow, dê uma olhada rápida em {lista de arquivos / eixos de pesquisa / alvos de revisão} e organize-os em um array.
+Passe a lista organizada ao script por `args`.
 
-### 2단계: 워크플로 실행
+### Etapa 2: executar o workflow
 
-Workflow 도구에 다음 스크립트를 전달한다. 자세한 예시는 harness 스킬의 `workflow-recipes.md`에서 확인한다.
+Passe o script abaixo à ferramenta Workflow. Para um exemplo detalhado, consulte `motor/workflow-recipes.md`.
 
-- `meta`: `name`은 '{domain}-run', `phases`는 [{수집}, {검증}, {종합}]
-- 수집: pipeline(args.items, item => agent(..., {schema: COLLECT}))
-- 검증: 찾은 항목마다 적대적 검증 → .filter(Boolean) → 검증을 통과한 항목만 다음 단계로 전달
-- 종합: 구조화된 결과를 return
+- `meta`: `name` é '{domain}-run', `phases` é [{coleta}, {verificação}, {síntese}]
+- Coleta: pipeline(args.items, item => agent(..., {schema: COLLECT}))
+- Verificação: verificação adversarial de cada item encontrado → .filter(Boolean) → só os itens aprovados na verificação passam para a etapa seguinte
+- Síntese: return do resultado estruturado
 
-호출한 뒤 완료 알림을 기다린다. 알림을 받기 전에 결과를 미리 단정하지 않는다.
+Depois de chamar, espere a notificação de conclusão. Não presuma o resultado antes de receber a notificação.
 
-### 3단계: 결과 정리 및 보고
+### Etapa 3: organizar e relatar os resultados
 
-1. 워크플로가 반환한 값을 받는다.
-2. 제외되거나 누락된 항목이 있으면 보고서에 반드시 밝힌다.
-3. 최종 산출물을 `{output-path}/{filename}`에 만든다.
-4. 중간 산출물과 `run_meta.json`은 `_workspace/`에 남긴다.
+1. Receba o valor devolvido pelo workflow.
+2. Se houver itens excluídos ou faltantes, declare-os obrigatoriamente no relatório.
+3. Gere o artefato final em `{output-path}/{filename}`.
+4. Deixe os artefatos intermediários e o `run_meta.json` em `_workspace/`.
 
-## 오류 처리
+## Tratamento de erros
 
-| 상황 | 대응 방법 |
+| Situação | Como agir |
 |------|------|
-| 개별 `agent()` 실패(`null` 반환) | `.filter(Boolean)`으로 제외하고 제외한 항목 수를 `log()`로 기록한다. 보고서에도 누락된 항목을 밝힌다. |
-| 워크플로 전체 실패 | `journal`에서 실제 반환값을 확인한 뒤 실패한 단계만 수정하고 `resumeFromRunId`로 재개한다. |
-| 다시 시도해도 소용없는 실패(사용량 한도 소진, 인증 만료, 권한 거부) | 원인이 풀리기 전에는 다시 시도하거나 재개하지 않는다. 남은 한도만 쓰기 때문이다. `journal`과 부분 산출물을 직접 열어 실제로 어디까지 진행됐는지 확인하고, 누락 내용을 `_workspace/`에 파일로 기록한 뒤 사용자에게 보고한다. 사용량 한도라면 풀리는 시각도 함께 알린다. 원인이 풀린 뒤에는 `resumeFromRunId`로 이어서 실행할 수 있다. 메인 에이전트는 직접 확인한 사실만 대신 반영하고, 에이전트의 판단(예: 어떤 자료를 왜 제외했는지)은 추측해 채우지 않는다. |
-| 결과가 비어 있는 경우 | 성공으로 잘못 판단하지 않는다. `journal`에서 각 에이전트의 실제 반환값을 확인한다. |
-| 서로 충돌하는 데이터 | 삭제하지 않고 출처와 함께 적는다. |
+| Falha de um `agent()` individual (devolve `null`) | Exclua com `.filter(Boolean)` e registre com `log()` quantos itens foram excluídos. Declare também no relatório os itens faltantes. |
+| Falha do workflow inteiro | Verifique no `journal` os valores realmente devolvidos, corrija só a etapa que falhou e retome com `resumeFromRunId`. |
+| Falha em que tentar de novo não adianta (limite de uso esgotado, autenticação expirada, permissão negada) | Não tente de novo nem retome antes de a causa ser resolvida, porque isso só consome o limite restante. Abra você mesmo o `journal` e os artefatos parciais para conferir até onde o trabalho realmente avançou, registre o que faltou em um arquivo em `_workspace/` e relate ao usuário. Se for limite de uso, informe também o horário em que ele é liberado. Depois que a causa for resolvida, dá para continuar a execução com `resumeFromRunId`. O agente principal só preenche no lugar do agente os fatos que verificou diretamente, e não preenche por suposição os julgamentos do agente (ex.: qual material ele excluiu e por quê). |
+| Resultado vazio | Não confunda com sucesso. Verifique no `journal` o valor realmente devolvido por cada agente. |
+| Dados que se contradizem | Não apague; registre-os junto com a fonte. |
 
-## 테스트 시나리오
+## Cenários de teste
 
-### 정상 흐름
-1. 사용자가 {입력}을 제공하면 사전 확인으로 항목 {M}건을 확정한다.
-2. 워크플로에서 항목 {M}건을 수집하고, 그중 {K}건이 검증을 통과하면 결과를 정리한다.
-3. 예상 결과: `{output-path}/{filename}`이 생성되고 `run_meta.json`에 실행 정보가 기록된다.
+### Fluxo normal
+1. Quando o usuário fornece {entrada}, a verificação prévia fecha {M} itens.
+2. O workflow coleta os {M} itens e, se {K} deles passarem na verificação, organiza o resultado.
+3. Resultado esperado: `{output-path}/{filename}` é gerado e as informações da execução são registradas em `run_meta.json`.
 
-### 오류 흐름
-1. 수집 단계에서 항목 두 건이 `null`을 반환한다.
-2. `.filter(Boolean)`으로 해당 항목을 제외하고 `log()`로 "2건 제외"를 알린다.
-3. 최종 보고서에 "{항목명} 2건 수집 실패"라고 적는다.
+### Fluxo de erro
+1. Na etapa de coleta, dois itens devolvem `null`.
+2. Esses itens são excluídos com `.filter(Boolean)` e `log()` informa "2 excluídos".
+3. O relatório final registra "falha na coleta de 2 {nome do item}".
 ```
 
 ---
 
-## 템플릿 B: 지속형 에이전트 협업
+## Template B: colaboração de agentes persistentes
 
 ```markdown
 ---
 name: {domain}-orchestrator
-description: "{도메인} 에이전트의 협업을 조율한다. 사용자가 {초기 실행 키워드} 중 하나로 요청하면 사용하며, 수정, 부분 재실행, 업데이트, 보완, 다시 실행, 이전 결과 개선 같은 후속 작업에도 사용한다."
+description: "Coordena a colaboração dos agentes de {domínio}. Use quando o usuário pedir com uma das expressões {palavras-chave de execução inicial}, e também em trabalhos de seguimento como correção, reexecução parcial, atualização, complemento, executar de novo e melhorar resultado anterior."
 ---
 
-# {Domain} 오케스트레이터
+# Orquestrador de {Domain}
 
-## 실행 모드: 지속형 에이전트 협업
+## Modo de execução: colaboração de agentes persistentes
 
-v1처럼 명시적인 팀 객체를 만들지 않는다. 세션에서 이름을 붙여 실행한 에이전트는 자동으로
-구성되는 하나의 협업 그룹에 속한다. TeamCreate와 TeamDelete는 v1에서만 쓰던 도구다.
+Ao contrário da v1, não se cria um objeto de time explícito. Os agentes executados com nome na sessão passam a fazer parte de
+um único grupo de colaboração montado automaticamente. TeamCreate e TeamDelete eram ferramentas usadas só na v1.
 
-## 에이전트 구성
+## Composição dos agentes
 
-| 이름 | `subagent_type` | 역할 | 스킬 | 산출물 |
+| Nome | `subagent_type` | Papel | Skill | Artefato |
 |------|--------------|------|------|------|
-| {teammate-1} | {커스텀 또는 빌트인} | {역할} | {skill} | {output-file} |
-| {teammate-2} | {커스텀 또는 빌트인} | {역할} | {skill} | {output-file} |
+| {teammate-1} | {personalizado ou built-in} | {papel} | {skill} | {output-file} |
+| {teammate-2} | {personalizado ou built-in} | {papel} | {skill} | {output-file} |
 
-`{커스텀 또는 빌트인}`에는 사용자 정의 유형의 이름이나 기본 제공 유형을 적는다.
+Em `{personalizado ou built-in}`, escreva o nome do tipo personalizado ou o tipo nativo.
 
-## 작업 절차
+## Procedimento
 
-### 0단계: 기존 작업 확인
-템플릿 A와 마찬가지로 `_workspace/`가 있는지 확인해 처음 실행할지, 일부만 다시 실행할지,
-새로 실행할지 결정한다. 일부만 다시 실행한다면 이전 산출물 경로를 에이전트 프롬프트에 넣어
-기존 결과를 읽고 반영하게 한다.
+### Etapa 0: verificar o trabalho existente
+Como no template A, verifique se existe `_workspace/` para decidir se executa pela primeira vez, se reexecuta só uma parte
+ou se executa do zero. Se for reexecutar só uma parte, coloque no prompt do agente o caminho dos artefatos anteriores
+para que ele leia e incorpore o resultado existente.
 
-### 1단계: 준비
-1. 사용자 입력을 분석해 {무엇을 파악하는지}를 확인한다.
-2. `_workspace/`를 만들고 입력을 `_workspace/00_input/`에 저장한다.
+### Etapa 1: preparação
+1. Analise a entrada do usuário e identifique {o que identificar}.
+2. Crie `_workspace/` e salve a entrada em `_workspace/00_input/`.
 
-### 2단계: 에이전트 실행 및 작업 등록
+### Etapa 2: executar os agentes e registrar as tarefas
 
-1. 한 메시지에서 에이전트를 병렬로 실행한다. `name`은 필수이며 SendMessage에서 대상을 지정할 때 쓴다.
-   - Agent(name: "{teammate-1}", subagent_type: "{type}", prompt: "{역할 + 작업 지시 + 산출 경로}")
+1. Execute os agentes em paralelo numa única mensagem. `name` é obrigatório e serve para indicar o destinatário no SendMessage.
+   - Agent(name: "{teammate-1}", subagent_type: "{type}", prompt: "{papel + instrução de trabalho + caminho de saída}")
    - Agent(name: "{teammate-2}", subagent_type: "{type}", prompt: "...")
-2. 공유 작업 목록을 등록한다.
-   - TaskCreate({title: "{작업1}", assignee: "{teammate-1}"})
-   - TaskCreate({title: "{작업3}", depends_on: [작업1]})
-   > 팀원 한 명이 맡는 작업은 3~6개가 적절하다. 작업 간 의존 관계는 `depends_on`으로 명시한다.
+2. Registre a lista de tarefas compartilhada.
+   - TaskCreate({title: "{tarefa1}", assignee: "{teammate-1}"})
+   - TaskCreate({title: "{tarefa3}", depends_on: [tarefa1]})
+   > O adequado é de 3 a 6 tarefas por membro do time. Declare as dependências entre tarefas com `depends_on`.
 
-### 3단계: 협업 조율
+### Etapa 3: coordenar a colaboração
 
-- 팀원의 작업 완료·대기 알림을 받으면서 진행한다. 전체 진행 상황은 TaskList로 확인한다.
-- SendMessage({to: "{teammate-2}"}, "{teammate-1}의 _workspace/01_... 초안을
-  검토하고 고칠 부분을 알려라")로 검토를 요청한다. 답변은 {teammate-1}에게 전달해 수정하게 한다.
-  에이전트가 이전 대화 내용을 유지하므로 "아까 그 초안의 2절만"처럼 범위를 좁혀 지시할 수 있다.
-- 찾은 내용을 팀원끼리 논의해야 하면 리더가 메시지를 중계한다. 산출물은 항상 파일로 남긴다.
+- Avance recebendo as notificações de tarefa concluída e de espera dos membros do time. Verifique o andamento geral com TaskList.
+- Peça a revisão com SendMessage({to: "{teammate-2}"}, "Revise o rascunho _workspace/01_... de {teammate-1}
+  e diga o que precisa ser corrigido"). Repasse a resposta a {teammate-1} para que ele corrija.
+  Como o agente mantém o conteúdo das conversas anteriores, dá para restringir a instrução, como em "só a seção 2 daquele rascunho de antes".
+- Se os membros do time precisarem discutir o que encontraram, o líder repassa as mensagens. Os artefatos ficam sempre registrados em arquivo.
 
-**산출물 저장 위치:**
+**Local de gravação dos artefatos:**
 
-| 팀원 | 출력 경로 |
+| Membro do time | Caminho de saída |
 |------|----------|
 | {teammate-1} | `_workspace/{phase}_{teammate-1}_{artifact}.md` |
 | {teammate-2} | `_workspace/{phase}_{teammate-2}_{artifact}.md` |
 
-### 4단계: 산출물 동결
+### Etapa 4: congelar os artefatos
 
-이름 있는 에이전트는 완료를 보고한 뒤에도 메시지를 받는다. 다른 팀원의 뒤늦은 질문에 답하다가 이미 넘긴 산출물을 고치면, 다음 단계는 바뀌기 전 내용을 읽고 작업하게 된다. 팀원끼리 교차 확인하는 메시지는 오류를 잡아낼 수 있으므로 막지 않는다. 대신 다음 단계가 읽을 파일이 도중에 바뀌지 않도록 단계를 넘길 때마다 산출물을 동결한다.
+Agentes com nome continuam recebendo mensagens depois de relatar a conclusão. Se um deles alterar um artefato já entregue enquanto responde a uma pergunta tardia de outro membro do time, a etapa seguinte acaba trabalhando com o conteúdo de antes da alteração. As mensagens de verificação cruzada entre membros do time podem pegar erros, por isso não as bloqueie. Em vez disso, congele os artefatos a cada passagem de etapa, para que os arquivos que a etapa seguinte vai ler não mudem no meio do caminho.
 
-1. TaskList와 완료 알림으로 직전 단계를 맡은 모든 팀원이 완료를 보고했는지 확인한다.
-2. 해당 팀원에게 SendMessage로 동결을 알린다. 예: "{단계} 산출물을 동결한다. 이후 고칠 내용이 생기면 기존 파일을 고치지 말고 `{phase}_{teammate}_{artifact}_v2.md`처럼 새 버전 파일로 쓴 뒤 리더에게 알려라."
-3. 산출물 해시를 기록한다. 예: `shasum _workspace/{phase}_* > _workspace/freeze_{phase}.sha` (`md5sum`을 써도 된다)
-4. 다음 단계를 맡은 에이전트의 프롬프트에 산출물 경로와 해시 파일 경로를 함께 넘긴다.
+1. Confirme, com TaskList e as notificações de conclusão, que todos os membros do time responsáveis pela etapa anterior relataram a conclusão.
+2. Avise esses membros do congelamento por SendMessage. Ex.: "Os artefatos de {etapa} estão congelados. Se depois surgir algo a corrigir, não altere o arquivo existente: escreva em um arquivo de nova versão, como `{phase}_{teammate}_{artifact}_v2.md`, e avise o líder."
+3. Registre o hash dos artefatos. Ex.: `shasum _workspace/{phase}_* > _workspace/freeze_{phase}.sha` (pode usar `md5sum` também)
+4. Passe no prompt do agente responsável pela etapa seguinte o caminho dos artefatos junto com o caminho do arquivo de hash.
 
-협업 단계가 여러 개면 단계 경계마다 같은 절차를 밟는다.
+Se houver várias etapas de colaboração, siga o mesmo procedimento em cada fronteira de etapa.
 
-### 5단계: 통합
-1. TaskList로 모든 작업이 끝났는지 확인한다.
-2. Read로 각 산출물을 읽고 {통합/검증 로직}을 적용한다.
-3. 최종 산출물을 만들기 직전에 `shasum -c _workspace/freeze_{phase}.sha`처럼 해시를 다시 계산해 동결한 산출물이 바뀌지 않았는지 확인한다. 해시가 다르거나 새 버전 파일이 생겼으면 무엇이 바뀌었는지 확인하고, 바뀌기 전 내용을 읽은 단계를 다시 실행할지 정한다.
-4. 최종 산출물을 `{output-path}/{filename}`에 만든다.
+### Etapa 5: integração
+1. Confirme com TaskList que todas as tarefas terminaram.
+2. Leia cada artefato com Read e aplique {lógica de integração/verificação}.
+3. Logo antes de gerar o artefato final, recalcule o hash, como em `shasum -c _workspace/freeze_{phase}.sha`, para confirmar que os artefatos congelados não mudaram. Se o hash for diferente ou tiver surgido um arquivo de nova versão, verifique o que mudou e decida se reexecuta a etapa que leu o conteúdo anterior à alteração.
+4. Gere o artefato final em `{output-path}/{filename}`.
 
-### 6단계: 마무리
-1. 나중에 검증하고 작업 과정을 확인할 수 있도록 `_workspace/`를 남긴다.
-2. 사용자에게 결과를 요약해 보고한다.
-   팀을 해체하는 절차는 없다. 에이전트는 작업이 끝나면 자동으로 종료되며, 필요하면 TaskStop으로 중지한다.
+### Etapa 6: encerramento
+1. Deixe o `_workspace/` para que depois seja possível verificar e conferir o processo de trabalho.
+2. Relate ao usuário um resumo do resultado.
+   Não há procedimento para desmontar o time. Os agentes encerram automaticamente ao terminar o trabalho e, se necessário, são interrompidos com TaskStop.
 
-## 오류 처리
+## Tratamento de erros
 
-| 상황 | 대응 방법 |
+| Situação | Como agir |
 |------|------|
-| 팀원이 응답하지 않거나 중지된 경우 | SendMessage로 상태를 확인하고 다시 지시한다. 그래도 실패하면 같은 사용자 정의 유형을 새 이름으로 실행하고 필요한 작업 맥락을 프롬프트로 넘긴다. |
-| 중지 원인이 사용량 한도 소진, 인증 만료, 권한 거부인 경우 | 다시 시도해도 결과가 같으므로 다시 지시하거나 대체 에이전트를 실행하지 않는다. 부분 산출물을 직접 열어 실제로 어디까지 진행됐는지 확인하고, 누락 내용을 `_workspace/`에 파일로 기록한 뒤 사용자에게 보고한다. 사용량 한도라면 풀리는 시각도 함께 알린다. 리더는 직접 확인한 사실만 대신 반영하고, 에이전트의 판단(예: 어떤 자료를 왜 제외했는지)은 추측해 채우지 않는다. |
-| 절반이 넘는 팀원이 실패한 경우 | 사용자에게 알리고 계속 진행할지 확인한다. |
-| 제한 시간을 초과한 경우 | 지금까지 받은 결과로 진행하고, 끝내지 못한 영역을 보고서에 밝힌다. |
-| 데이터가 서로 충돌한 경우 | 삭제하지 않고 출처와 함께 나란히 적는다. |
-| 작업 상태가 늦게 반영된 경우 | TaskList로 확인한 뒤 TaskUpdate로 직접 갱신한다. |
+| Membro do time não responde ou foi interrompido | Verifique o estado com SendMessage e dê a instrução de novo. Se ainda assim falhar, execute o mesmo tipo personalizado com um nome novo e passe no prompt o contexto de trabalho necessário. |
+| A causa da interrupção é limite de uso esgotado, autenticação expirada ou permissão negada | Como tentar de novo dá o mesmo resultado, não repita a instrução nem execute um agente substituto. Abra você mesmo os artefatos parciais para conferir até onde o trabalho realmente avançou, registre o que faltou em um arquivo em `_workspace/` e relate ao usuário. Se for limite de uso, informe também o horário em que ele é liberado. O líder só preenche no lugar do agente os fatos que verificou diretamente, e não preenche por suposição os julgamentos do agente (ex.: qual material ele excluiu e por quê). |
+| Mais da metade dos membros do time falhou | Avise o usuário e confirme se deve continuar. |
+| Tempo limite excedido | Prossiga com os resultados recebidos até o momento e declare no relatório as áreas que não foram concluídas. |
+| Dados que se contradizem | Não apague; registre-os lado a lado, junto com a fonte. |
+| Estado das tarefas refletido com atraso | Verifique com TaskList e atualize diretamente com TaskUpdate. |
 
-## 테스트 시나리오
+## Cenários de teste
 
-### 정상 흐름
-1. 사용자가 {입력}을 제공하면 2단계에서 에이전트 {N}명을 실행하고 작업 {M}건을 등록한다.
-2. 3단계에서 피드백을 {K}회 주고받고, 4단계에서 산출물을 동결한 뒤 5단계에서 결과를 통합한다.
-3. 예상 결과: `{output-path}/{filename}`이 생성된다.
+### Fluxo normal
+1. Quando o usuário fornece {entrada}, a etapa 2 executa {N} agentes e registra {M} tarefas.
+2. A etapa 3 troca feedback {K} vezes, a etapa 4 congela os artefatos e a etapa 5 integra os resultados.
+3. Resultado esperado: `{output-path}/{filename}` é gerado.
 
-### 오류 흐름
-1. 3단계에서 {teammate-2}가 응답하지 않는다.
-2. SendMessage로 상태를 확인하고 다시 지시한다. 그래도 실패하면 "{teammate-2}b"라는 이름으로 대체 에이전트를 실행하고 기존 산출물 경로를 전달한다.
-3. 최종 보고서에 "{teammate-2} 영역 일부 재작업"이라고 적는다.
+### Fluxo de erro
+1. Na etapa 3, {teammate-2} não responde.
+2. Verifique o estado com SendMessage e dê a instrução de novo. Se ainda assim falhar, execute um agente substituto com o nome "{teammate-2}b" e passe a ele o caminho dos artefatos existentes.
+3. O relatório final registra "parte da área de {teammate-2} refeita".
 ```
 
 ---
 
-## 템플릿 C: 서브에이전트 위임
+## Template C: delegação a subagentes
 
 ```markdown
 ---
 name: {domain}-orchestrator
-description: "{도메인}의 독립 작업을 서브에이전트에 위임한다. 사용자가 {초기 실행 키워드} 중 하나로 요청하면 사용하며, 결과 수정, 부분 재실행, 업데이트, 보완, 다시 실행, 이전 결과 개선 같은 후속 작업에도 사용한다."
+description: "Delega a subagentes as tarefas independentes de {domínio}. Use quando o usuário pedir com uma das expressões {palavras-chave de execução inicial}, e também em trabalhos de seguimento como corrigir resultado, reexecução parcial, atualização, complemento, executar de novo e melhorar resultado anterior."
 ---
 
-## 실행 모드: 서브에이전트 위임
+## Modo de execução: delegação a subagentes
 
-## 작업 절차
+## Procedimento
 
-### 0단계: 기존 작업 확인
-`_workspace/`가 있는지 확인해 처음 실행할지, 일부만 다시 실행할지, 새로 실행할지 결정한다.
+### Etapa 0: verificar o trabalho existente
+Verifique se existe `_workspace/` para decidir se executa pela primeira vez, se reexecuta só uma parte ou se executa do zero.
 
-### 1단계: 준비
-입력을 분석하고 `_workspace/`를 만든다.
+### Etapa 1: preparação
+Analise a entrada e crie `_workspace/`.
 
-### 2단계: 병렬 실행
-한 메시지에서 Agent 도구를 N번 동시에 호출한다. 기본적으로 백그라운드에서 실행한다.
+### Etapa 2: execução em paralelo
+Chame a ferramenta Agent N vezes simultaneamente numa única mensagem. Por padrão roda em segundo plano.
 
-| 에이전트 | `subagent_type` | 입력 | 산출물 |
+| Agente | `subagent_type` | Entrada | Artefato |
 |---------|--------------|------|------|
-| {agent-1} | {타입} | {소스} | `_workspace/{phase}_{agent}_{artifact}.md` |
-| {agent-2} | {타입} | {소스} | `_workspace/{phase}_{agent}_{artifact}.md` |
+| {agent-1} | {tipo} | {fonte} | `_workspace/{phase}_{agent}_{artifact}.md` |
+| {agent-2} | {tipo} | {fonte} | `_workspace/{phase}_{agent}_{artifact}.md` |
 
-`{타입}`에는 사용자 정의 유형의 이름이나 기본 제공 유형을 적는다.
+Em `{tipo}`, escreva o nome do tipo personalizado ou o tipo nativo.
 
-완료 알림을 기다린다. 메인 에이전트는 이미 맡긴 검색을 다시 수행하지 않는다.
+Espere a notificação de conclusão. O agente principal não refaz a busca que já delegou.
 
-### 3단계: 통합
-1. 반환값과 파일 산출물을 모아 통합한 뒤 최종 산출물을 만든다.
+### Etapa 3: integração
+1. Reúna e integre os valores devolvidos e os artefatos em arquivo e, em seguida, gere o artefato final.
 
-### 4단계: 마무리
-`_workspace/`를 남기고 사용자에게 결과를 요약해 보고한다.
+### Etapa 4: encerramento
+Deixe o `_workspace/` e relate ao usuário um resumo do resultado.
 
-## 오류 처리
-- 에이전트 한 명이 실패하면 한 번 다시 시도한다. 다시 실패하면 누락 사실을 밝히고 계속 진행한다.
-- 사용량 한도 소진, 인증 만료, 권한 거부처럼 다시 시도해도 결과가 같은 실패는 다시 시도하지 않는다. 부분 산출물을 직접 열어 실제로 어디까지 진행됐는지 확인하고, 누락 내용을 `_workspace/`에 파일로 기록한 뒤 사용자에게 보고한다. 사용량 한도라면 풀리는 시각도 함께 알린다. 메인 에이전트는 직접 확인한 사실만 대신 반영하고, 에이전트의 판단은 추측해 채우지 않는다.
-- 절반이 넘는 에이전트가 실패하면 사용자에게 알리고 계속 진행할지 확인한다.
+## Tratamento de erros
+- Se um agente falhar, tente de novo uma vez. Se falhar de novo, declare o que ficou faltando e continue.
+- Falhas em que tentar de novo dá o mesmo resultado, como limite de uso esgotado, autenticação expirada e permissão negada, não são repetidas. Abra você mesmo os artefatos parciais para conferir até onde o trabalho realmente avançou, registre o que faltou em um arquivo em `_workspace/` e relate ao usuário. Se for limite de uso, informe também o horário em que ele é liberado. O agente principal só preenche no lugar do agente os fatos que verificou diretamente, e não preenche por suposição os julgamentos do agente.
+- Se mais da metade dos agentes falhar, avise o usuário e confirme se deve continuar.
 ```
 
 ---
 
-## 단계별 실행 모드 조합(혼합 모드)
+## Combinação de modos de execução por etapa (modo misto)
 
-단계마다 알맞은 실행 모드를 사용한다. 각 단계 맨 위에 `**실행 모드:**`를 적는다.
+Use o modo de execução adequado a cada etapa. No topo de cada etapa, escreva `**Modo de execução:**`.
 
 ```markdown
-## 실행 모드: 혼합
+## Modo de execução: misto
 
-| 단계 | 실행 모드 | 선택 이유 |
+| Etapa | Modo de execução | Motivo da escolha |
 |------|----------|-----------|
-| 1단계(사전 확인) | 메인 에이전트가 직접 수행하거나 서브에이전트에 위임 | 작업 목록을 확정해야 한다. |
-| 2단계(대량 수집·검증) | 워크플로 조율 | 미리 정한 목록을 분산 처리하고 적대적 검증을 수행해야 한다. |
-| 3단계(합의·통합) | 지속형 에이전트 협업 | 서로 충돌하는 데이터를 논의해 합의해야 한다. |
-| 4단계(독립 검증) | 서브에이전트 위임 | 품질 검증 담당 에이전트 한 명이 독립적으로 검증하면 된다. |
+| Etapa 1 (verificação prévia) | Feita diretamente pelo agente principal ou delegada a um subagente | É preciso fechar a lista de tarefas. |
+| Etapa 2 (coleta e verificação em massa) | Coordenação por workflow | É preciso processar de forma distribuída a lista definida de antemão e fazer verificação adversarial. |
+| Etapa 3 (consenso e integração) | Colaboração de agentes persistentes | É preciso discutir os dados que se contradizem e chegar a um consenso. |
+| Etapa 4 (verificação independente) | Delegação a subagentes | Basta um agente responsável pela verificação de qualidade verificar de forma independente. |
 ```
 
-**실행 모드 전환 규칙:**
-- 워크플로 조율 → 지속형 에이전트 협업: 워크플로가 반환한 구조화 데이터를 `_workspace/`에 저장하고, 지속형 에이전트의 프롬프트에 파일 경로를 적는다.
-- 지속형 에이전트 협업 → 워크플로 조율: 팀 산출물을 동결한 뒤(템플릿 B의 4단계) 파일 경로 목록을 `args`로 스크립트에 넣는다.
-- 실행 모드가 바뀌는 지점마다 데이터 전달 경로를 적어, 이전 단계의 결과를 찾지 못하는 일이 없게 한다.
+**Regras de transição entre modos de execução:**
+- Coordenação por workflow → colaboração de agentes persistentes: salve em `_workspace/` os dados estruturados devolvidos pelo workflow e escreva o caminho do arquivo no prompt dos agentes persistentes.
+- Colaboração de agentes persistentes → coordenação por workflow: congele os artefatos do time (etapa 4 do template B) e depois coloque a lista de caminhos de arquivo no script por `args`.
+- Em cada ponto em que o modo de execução muda, escreva o caminho de passagem dos dados, para que nunca aconteça de não se encontrar o resultado da etapa anterior.
 
 ---
 
-## 모든 템플릿에 적용할 작성 원칙
+## Princípios de redação aplicáveis a todos os templates
 
-1. **문서 맨 위에 실행 모드를 밝힌다.** 혼합 모드라면 단계별 실행 모드를 표로 정리한다.
-2. **워크플로 조율 모드에서는 스크립트 구조를 자세히 적는다.** `phases`, `schema` 요약, `args`에 넣을 항목을 빠짐없이 명시한다.
-3. **지속형 에이전트 협업 모드에서는 `name`, SendMessage, TaskCreate 사용법을 자세히 적는다.** 실행할 에이전트 목록, 통신 규칙, 작업 간 의존 관계, 단계 경계의 산출물 동결 절차를 포함한다.
-4. **서브에이전트 위임 모드에서는 Agent 매개변수를 빠짐없이 적는다.** `name`을 지정하지 않는 단발 실행인지 밝히고, `subagent_type`, `prompt`, 출력 경로를 명시한다.
-5. **파일 경로를 분명히 적는다.** `_workspace/`를 기준으로 경로를 쓰고, 파일 이름은 `{phase}_{agent}_{artifact}.{ext}` 규칙을 따른다.
-6. **단계 간 의존 관계를 밝힌다.** 실행 모드가 바뀌는 지점에서는 데이터가 어떻게 넘어가는지 특히 자세히 적는다.
-7. **실제로 일어날 수 있는 오류에 대비한다.** 모든 작업이 성공한다고 가정하지 말고 상황별 처리 방법을 정한다.
-8. **테스트 시나리오를 반드시 넣는다.** 정상 시나리오 한 가지와 오류 시나리오 한 가지 이상을 작성한다.
-9. **v1에서만 쓰던 항목을 넣지 않는다.** TeamCreate, TeamDelete, `team_name`, 전체 전송, 실험 플래그를 참조했다면 잘못 작성한 것이다.
+1. **Declare o modo de execução no topo do documento.** Se for modo misto, organize em tabela o modo de execução de cada etapa.
+2. **No modo de coordenação por workflow, descreva em detalhe a estrutura do script.** Especifique sem omissões `phases`, o resumo do `schema` e os itens que vão em `args`.
+3. **No modo de colaboração de agentes persistentes, descreva em detalhe o uso de `name`, SendMessage e TaskCreate.** Inclua a lista de agentes a executar, as regras de comunicação, as dependências entre tarefas e o procedimento de congelamento de artefatos nas fronteiras de etapa.
+4. **No modo de delegação a subagentes, escreva todos os parâmetros do Agent.** Declare se é uma execução pontual sem `name` e especifique `subagent_type`, `prompt` e o caminho de saída.
+5. **Escreva os caminhos de arquivo com clareza.** Escreva os caminhos tendo `_workspace/` como base, e os nomes de arquivo seguem a regra `{phase}_{agent}_{artifact}.{ext}`.
+6. **Declare as dependências entre etapas.** Nos pontos em que o modo de execução muda, descreva com detalhe especial como os dados são passados.
+7. **Prepare-se para os erros que podem realmente acontecer.** Não presuma que todas as tarefas terão sucesso; defina o tratamento para cada situação.
+8. **Inclua obrigatoriamente cenários de teste.** Escreva um cenário normal e pelo menos um cenário de erro.
+9. **Não inclua itens que só eram usados na v1.** Se houver referência a TeamCreate, TeamDelete, `team_name`, envio para todos ou flag experimental, foi escrito errado.
 
-## `description`에 넣을 후속 요청 표현
+## Expressões de pedido de seguimento a incluir na `description`
 
-첫 실행뿐 아니라 결과를 고치거나 다시 실행할 때도 이 스킬이 선택되도록 다음 표현을 넣는다.
+Inclua as expressões abaixo para que este skill seja escolhido não só na primeira execução, mas também quando se corrige ou se executa de novo o resultado.
 
-- 재실행, 다시 실행, 업데이트, 수정, 보완
-- "{도메인}의 {부분}만 다시"
-- "이전 결과를 바탕으로", "결과 개선"
-- 도메인에서 일상적으로 쓰는 요청 표현(예: 출시 전략 하네스라면 "런치", "홍보", "트렌딩")
+- reexecução, executar de novo, atualização, correção, complemento
+- "só {parte} de {domínio} de novo"
+- "com base no resultado anterior", "melhorar o resultado"
+- Expressões de pedido usadas no dia a dia do domínio (ex.: num harness de estratégia de lançamento, "launch", "divulgação", "trending")
 
-후속 요청 표현이 없으면 첫 실행 뒤에는 이 하네스가 다시 선택되지 않을 수 있다.
+Sem expressões de pedido de seguimento, este harness pode não ser escolhido de novo depois da primeira execução.

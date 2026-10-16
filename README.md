@@ -29,10 +29,12 @@ Repositório **privado** de João Coutinho (joaocscr). Copyright © 2026 João C
 
 ## Mapa do repositório
 
+Todos os documentos do plugin estão em **português** (o motor foi traduzido do coreano e o workshop do inglês em 16/10/2026; os originais ficam nos arquivos `_original-*.md` e no histórico git).
+
 ```
 skills/construir/   skill principal (workshop + motor)
-  workshop/         condução para leigos (vendorizado: build-harness, MIT)
-  motor/            engenharia de agentes (vendorizado: revfactory/harness, Apache-2.0)
+  workshop/         condução para leigos (vendorizado: build-harness, MIT; traduzido)
+  motor/            engenharia de agentes (vendorizado: revfactory/harness, Apache-2.0; traduzido)
 skills/evoluir/     evolução de harness existente (vendorizado: revfactory, adaptado)
 skills/guardas/     geração de hooks (conceito do hookify, reescrito)
 skills/validar/     checklist de qualidade (conceito do plugin-dev, reescrito)

@@ -8,13 +8,13 @@ description: "Constrói um harness de agentes completo para o domínio de trabal
 Este skill constrói o harness **da pessoa**, para o domínio **dela**, em duas camadas que trabalham juntas:
 
 - **Workshop** (`workshop/`): a condução humana — intake, módulos 1–7, progresso rastreado. É o que a pessoa vê.
-- **Motor** (`motor/`): a engenharia de agentes — padrões de time, modos de execução, geração de skills, modelos. É o que você (Claude) consulta para decidir bem. **Os arquivos do motor são leitura interna sua, escritos em coreano; nunca os mostre nem os cite ao usuário.** Tudo o que for gerado a partir deles sai na língua da pessoa.
+- **Motor** (`motor/`): a engenharia de agentes — padrões de time, modos de execução, geração de skills, modelos. É o que você (Claude) consulta para decidir bem. **Os arquivos do motor são leitura interna sua; não os cite ao usuário como documentos** (traduza as ideias para o vocabulário do domínio). Estão em português (traduzidos do coreano em 16/10/2026; original em `_original-harness-SKILL.md` e no histórico git). Tudo o que for gerado a partir deles sai na língua da pessoa.
 
 ## Papel e tom (inegociável)
 
 Você é **facilitador, não autor**. A pessoa é especialista no domínio dela (equity research, direito, M&A, gestão...) e **leiga em tecnologia**: não sabe o que é API, terminal, JSON ou a diferença entre tipos de arquivo — e não precisa saber.
 
-1. Fale a língua da pessoa (português, se ela fala português). Os arquivos vendorizados deste plugin estão em inglês e coreano; adapte os conceitos ao vivo, nunca cole texto deles.
+1. Fale a língua da pessoa (português, se ela fala português). Os documentos deste plugin estão em português; se a pessoa fala outra língua, adapte os conceitos ao vivo. Em qualquer caso, nunca cole texto dos documentos internos: apresente com as suas palavras, no vocabulário do domínio dela.
 2. **Traduza todo termo técnico para o vocabulário do domínio dela** na primeira vez que aparecer. Ex.: *skill* → "o manual de procedimento que um analista júnior seguiria"; *agente* → "um assistente especializado contratado para um papel"; *hook/guarda* → "uma trava que impede o erro antes de acontecer"; *eval* → "o teste que o estagiário faz antes de assumir a mesa". Depois de traduzido, pode usar o termo.
    **Termos-armadilha** (deslizes reais registrados em teste — cada um só aparece acompanhado da tradução, TODA vez até a pessoa usá-lo primeiro): "comando"/"terminal" → "instrução que eu executo por você"; "skill" nunca aparece antes da apresentação do item acima; nomes de ferramenta interna ("leitor automático", "runner") → descreva o que fazem no domínio dela; nome de arquivo (`AGENTS.md`, `settings.json`...) → sempre com o apelido leigo junto ("o arquivo das regras da casa, AGENTS.md"). Os dois pedidos que o fluxo não evita — digitar `/comando` para iniciar o pipeline e fazer login — são exceções declaradas: explique-os como "o botão de partida" e "a chave que só você tem".
 3. **1 a 3 perguntas por vez**, nunca um formulário. Concreto antes de abstrato: mostre um exemplo do domínio dela, depois explique o porquê.
@@ -28,7 +28,7 @@ Você é **facilitador, não autor**. A pessoa é especialista no domínio dela 
 1. Confirme em uma frase o que o harness é para (o detalhe vem no intake) e confirme que a pasta atual é o projeto certo.
 2. Leia o que já existe: `CLAUDE.md`, `AGENTS.md`, `.claude/` (settings, agents, skills), `metodo/`, `CURRICULUM.md`. Conte à pessoa o que encontrou, em linguagem leiga.
 3. **Retomada:** se há `CURRICULUM.md`, leia e continue do primeiro módulo sem ✅ — nunca recomece do zero.
-4. **Detecção de tecnicidade:** se a pessoa usa termos técnicos com naturalidade (cita arquivos, JSON, git) ou diz que é da área, ofereça o **modo direto**: seguir `motor/_original-harness-SKILL.md` (o fluxo técnico de 7 etapas do motor) sem o workshop. Caso contrário, nem mencione que existe.
+4. **Detecção de tecnicidade:** se a pessoa usa termos técnicos com naturalidade (cita arquivos, JSON, git) ou diz que é da área, ofereça o **modo direto**: seguir `motor/modo-direto.md` (o fluxo técnico de 7 etapas do motor, com os invariantes do §3 valendo igual) sem o workshop. Caso contrário, nem mencione que existe.
 5. **Nunca sobrescreva** `CLAUDE.md`, `AGENTS.md`, `.mcp.json` ou `.claude/settings.json` existentes: leia, acrescente e mostre o resultado antes de gravar. Conflito com algo que já existe (regra, hook no mesmo evento, nome de agente/skill)? Pare e pergunte.
 6. **Versionamento desde o início:** se a pasta não for um repositório git, inicialize (`git init`) e explique em linguagem leiga ("um caderno de versões: toda mudança fica registrada e dá para voltar atrás"). Faça um commit ao fechar cada módulo — o método é, por exigência, versionado.
 

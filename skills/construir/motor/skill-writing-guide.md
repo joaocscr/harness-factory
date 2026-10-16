@@ -1,181 +1,181 @@
-# 스킬 작성 가이드
+# Guia de redação de skills
 
-하네스로 만드는 스킬의 품질을 높이는 방법을 자세히 설명한다. `SKILL.md` 4단계를 보충하는 참고 자료다.
-
----
-
-## 목차
-
-1. [`description` 작성 방식](#1-description-작성-패턴)
-2. [본문 작성 방식](#2-본문-작성-스타일)
-3. [출력 형식을 정의하는 방법](#3-출력-형식-정의-패턴)
-4. [예시 작성법](#4-예시-작성-패턴)
-5. [필요한 정보만 단계적으로 불러오는 방법](#5-progressive-disclosure-패턴)
-6. [스크립트를 묶어 둘지 판단하는 기준](#6-스크립트-번들링-판단-기준)
-7. [데이터 스키마 표준](#7-데이터-스키마-표준)
-8. [스킬에 넣지 않을 내용](#8-스킬에-포함하지-않을-것)
-9. [스킬 재사용 설계](#9-스킬-재사용-설계)
+Explica em detalhe como elevar a qualidade dos skills criados pelo harness. É material de referência que complementa a etapa 4 do `modo-direto.md`.
 
 ---
 
-<a id="1-description-작성-패턴"></a>
+## Sumário
 
-## 1. `description` 작성 방식
+1. [Como escrever a `description`](#1-padrão-de-redação-da-description)
+2. [Como escrever o corpo](#2-estilo-de-redação-do-corpo)
+3. [Como definir o formato de saída](#3-padrão-de-definição-do-formato-de-saída)
+4. [Como escrever exemplos](#4-padrão-de-redação-de-exemplos)
+5. [Como carregar por etapas só a informação necessária](#5-padrão-progressive-disclosure)
+6. [Critério para decidir se scripts devem ser empacotados](#6-critério-para-empacotar-scripts)
+7. [Padrão de schemas de dados](#7-padrão-de-schemas-de-dados)
+8. [O que não colocar no skill](#8-o-que-não-incluir-no-skill)
+9. [Design de reutilização de skills](#9-design-de-reutilização-de-skills)
 
-Claude에 노출되는 스킬 필드는 `name`과 `description`이며, 구체적인 호출 조건은 `description`에 적는다. Claude는 이 두 필드를 읽고 어떤 스킬을 쓸지 결정한다.
+---
 
-### 스킬이 실행되는 방식
+<a id="1-padrão-de-redação-da-description"></a>
 
-Claude는 기본 도구만으로 쉽게 처리할 수 있는 간단한 작업에는 스킬을 실행하지 않는 경향이 있다. 예를 들어 “이 PDF 읽어줘” 같은 단순한 요청은 `description`을 잘 작성해도 스킬을 실행하지 않을 수 있다. 여러 단계를 거쳐야 하거나 전문적인 판단이 필요한 복잡한 작업일수록 스킬이 실행될 가능성이 높다.
+## 1. Como escrever a `description`
 
-### 작성 원칙
+Os campos do skill expostos ao Claude são `name` e `description`, e as condições concretas de acionamento vão na `description`. O Claude lê esses dois campos e decide qual skill usar.
 
-1. **스킬이 하는 일**과 **스킬을 실행해야 하는 구체적인 상황**을 모두 적는다.
-2. 비슷해 보이지만 스킬을 실행하면 안 되는 경우가 있다면 적용 범위와 제외 조건을 분명히 적는다.
-3. Claude가 스킬 실행 여부를 보수적으로 판단한다는 점을 감안해, 실행해야 하는 상황은 다소 적극적으로 표현한다.
-4. 여러 작업을 조율하는 스킬에는 **후속 작업을 나타내는 단어**(재실행, 수정, 보완, 이전 결과 개선)를 반드시 넣는다.
+### Como um skill é acionado
 
-### 좋은 예
+O Claude tende a não acionar skills em tarefas simples, que resolve facilmente só com as ferramentas básicas. Por exemplo, um pedido simples como "lê este PDF pra mim" pode não acionar o skill mesmo que a `description` esteja bem escrita. Quanto mais complexa for a tarefa — passando por várias etapas ou exigindo julgamento especializado —, maior a chance de o skill ser acionado.
+
+### Princípios de redação
+
+1. Escreva tanto **o que o skill faz** quanto **as situações concretas em que ele deve ser acionado**.
+2. Se houver casos que parecem parecidos mas em que o skill não deve ser acionado, escreva com clareza o escopo de aplicação e as condições de exclusão.
+3. Levando em conta que o Claude decide de forma conservadora se aciona um skill, descreva de forma um tanto enfática as situações em que ele deve ser acionado.
+4. Em skills que coordenam várias tarefas, inclua obrigatoriamente **palavras que indicam trabalho de seguimento** (reexecução, correção, complemento, melhorar resultado anterior).
+
+### Bom exemplo
 
 ```yaml
-description: "PDF 파일을 읽고 텍스트·표를 추출하며, 병합, 분할, 회전, 워터마크,
-  암호화·복호화, OCR을 수행한다. 사용자가 .pdf 파일을 언급하거나 PDF 산출물을
-  요청하면 반드시 이 스킬을 사용한다. 단순히 PDF를 '읽어 달라'는 요청보다
-  변환·편집·분석이 필요한 작업에 특히 유용하다."
+description: "Lê arquivos PDF e extrai texto e tabelas, e faz mesclagem, divisão, rotação, marca d'água,
+  criptografia e descriptografia, e OCR. Sempre que o usuário mencionar um arquivo .pdf ou pedir um
+  artefato em PDF, use obrigatoriamente este skill. É especialmente útil em tarefas que exigem
+  conversão, edição ou análise, mais do que em pedidos simples para 'ler' um PDF."
 ```
 
-### 좋지 않은 예
+### Maus exemplos
 
-- `"데이터를 처리하는 스킬"` — 너무 모호해서 어떤 파일이나 작업을 다루는지 알 수 없다.
-- `"PDF 관련 작업"` — 어떤 작업을 할 수 있는지, 언제 실행해야 하는지 적혀 있지 않다.
+- `"Skill que processa dados"` — vago demais; não dá para saber que arquivos ou tarefas ele trata.
+- `"Tarefas relacionadas a PDF"` — não diz que tarefas consegue fazer nem quando deve ser acionado.
 
-<a id="2-본문-작성-스타일"></a>
+<a id="2-estilo-de-redação-do-corpo"></a>
 
-## 2. 본문 작성 방식
+## 2. Como escrever o corpo
 
-### 이유부터 설명한다
+### Explique primeiro o motivo
 
-대규모 언어 모델(LLM)은 규칙이 필요한 이유를 이해하면 예외 상황에서도 알맞게 판단할 수 있다. 해야 할 일과 하지 말아야 할 일을 명령으로만 나열하기보다, 그 규칙을 따라야 하는 이유를 알려 주는 편이 효과적이다.
+Um modelo de linguagem de grande porte (LLM), quando entende por que uma regra é necessária, consegue julgar adequadamente também em situações de exceção. Em vez de só listar como ordens o que fazer e o que não fazer, é mais eficaz informar por que a regra deve ser seguida.
 
-**좋지 않은 예:**
+**Mau exemplo:**
 
 ```markdown
-테이블 추출에는 항상 pdfplumber를 사용하라. 테이블에는 절대 PyPDF2를 사용하지 마라.
+Para extrair tabelas, use sempre pdfplumber. Nunca use PyPDF2 para tabelas.
 ```
 
-**좋은 예:**
+**Bom exemplo:**
 
 ```markdown
-테이블을 추출할 때는 pdfplumber를 사용한다. PyPDF2는 텍스트 추출용이라
-테이블의 행과 열 구조를 보존하지 못하기 때문이다. pdfplumber는 셀 경계를 인식해
-구조화된 데이터를 반환한다.
+Ao extrair tabelas, use pdfplumber. O PyPDF2 é feito para extrair texto e
+não preserva a estrutura de linhas e colunas das tabelas. O pdfplumber reconhece os limites das células
+e devolve dados estruturados.
 ```
 
-### 여러 사례에 적용할 수 있는 원칙으로 고친다
+### Corrija na forma de princípios aplicáveis a vários casos
 
-피드백이나 테스트에서 문제를 찾으면 특정 예시에만 맞는 지시를 덧붙이지 않는다. 다른 사례에도 적용할 수 있는 원칙으로 고친다.
+Ao encontrar um problema em um feedback ou teste, não acrescente uma instrução que sirva só para aquele exemplo específico. Corrija na forma de um princípio aplicável também a outros casos.
 
-**과적합된 수정:** `"Q4 매출" 열이 있으면 해당 열을 숫자로 변환하라.`
+**Correção com overfitting:** `Se houver uma coluna "Receita Q4", converta essa coluna para número.`
 
-**일반화한 수정:** `열 이름에 "매출", "금액", "수량"처럼 수치를 나타내는 단어가 있으면 해당 열을 숫자 타입으로 변환한다. 변환할 수 없는 값은 원래 값으로 둔다.`
+**Correção generalizada:** `Se o nome da coluna contiver palavras que indicam valores numéricos, como "receita", "valor" e "quantidade", converta a coluna para tipo numérico. Valores que não puderem ser convertidos ficam como estão.`
 
-### 명령형으로 쓴다
+### Escreva no imperativo
 
-“~합니다”, “~할 수 있습니다” 대신 “~한다”, “~하라”처럼 쓴다. 스킬은 AI 에이전트가 따라야 할 지시서이기 때문이다.
+Em vez de formas descritivas e polidas como "isto é feito", "é possível fazer", escreva em formas diretas como "faça", "use". Isso porque o skill é um conjunto de instruções que um agente de IA deve seguir.
 
-### 한 번에 참고할 정보의 양을 줄인다
+### Reduza a quantidade de informação consultada de uma vez
 
-모델이 한 번에 참고할 수 있는 정보량(context window)은 한정되어 있다. 이 한도에는 스킬 지시뿐 아니라 작업에 필요한 다른 정보도 포함된다. 각 문장이 차지하는 토큰만큼 꼭 필요한 내용인지 다음 기준으로 판단한다.
+A quantidade de informação que o modelo consegue consultar de uma vez (context window) é limitada. Esse limite inclui não só as instruções do skill, mas também as demais informações necessárias para o trabalho. Avalie, pelos critérios abaixo, se cada frase é necessária o bastante para os tokens que ocupa.
 
-- “Claude가 이미 아는 내용인가?” → 삭제한다.
-- “이 설명이 없으면 Claude가 실수하는가?” → 남긴다.
-- “긴 설명보다 구체적인 예시 하나가 더 분명한가?” → 예시로 바꾼다.
+- "É algo que o Claude já sabe?" → apague.
+- "Sem esta explicação, o Claude erra?" → mantenha.
+- "Um exemplo concreto é mais claro do que uma explicação longa?" → troque por exemplo.
 
-<a id="3-출력-형식-정의-패턴"></a>
+<a id="3-padrão-de-definição-do-formato-de-saída"></a>
 
-## 3. 출력 형식을 정의하는 방법
+## 3. Como definir o formato de saída
 
-산출물의 형식이 중요한 스킬에는 따라야 할 구조를 명시한다.
+Em skills em que o formato do artefato importa, especifique a estrutura a seguir.
 
 ```markdown
-## 보고서 구조
-다음 템플릿을 정확히 따른다.
+## Estrutura do relatório
+Siga exatamente o template abaixo.
 
-# [제목]
-## 요약
-## 주요 발견
-## 권장 사항
+# [Título]
+## Resumo
+## Principais achados
+## Recomendações
 ```
 
-형식 설명은 짧게 쓰고 실제 예시를 함께 넣으면 더 효과적이다.
+É mais eficaz escrever curta a explicação do formato e incluir junto um exemplo real.
 
-**워크플로의 다음 단계에서 읽을 산출물:** 다음 단계가 산출물을 코드로 읽어 처리한다면 마크다운 템플릿 대신 **JSON 구조**를 명시한다. 또한 최종 텍스트가 사용자에게 보여 줄 메시지가 아니라 다음 단계로 넘길 반환 데이터임을 적는다. `Workflow`의 `agent()`가 `schema`로 반환 형식을 강제하므로 스킬과 스크립트에 정의한 구조가 서로 일치해야 한다.
+**Artefatos que serão lidos pela etapa seguinte do workflow:** se a etapa seguinte lê e processa o artefato por código, especifique uma **estrutura JSON** em vez de um template em markdown. Escreva também que o texto final não é uma mensagem a ser mostrada ao usuário, e sim dados de retorno a passar para a etapa seguinte. Como o `agent()` do `Workflow` impõe o formato de retorno via `schema`, a estrutura definida no skill e a definida no script precisam coincidir.
 
-<a id="4-예시-작성-패턴"></a>
+<a id="4-padrão-de-redação-de-exemplos"></a>
 
-## 4. 예시 작성법
+## 4. Como escrever exemplos
 
-구체적인 예시는 긴 설명보다 규칙을 분명하게 전달한다.
+Exemplos concretos transmitem a regra com mais clareza do que explicações longas.
 
 ```markdown
-## 커밋 메시지 형식
+## Formato da mensagem de commit
 
-**예시 1:**
-입력: JWT 토큰을 사용하는 사용자 인증 추가
-출력: feat(auth): JWT 인증 구현
+**Exemplo 1:**
+Entrada: adicionar autenticação de usuário usando token JWT
+Saída: feat(auth): implementa autenticação JWT
 
-**예시 2:**
-입력: 로그인 페이지에서 비밀번호 표시 버튼이 동작하지 않는 버그 수정
-출력: fix(login): 비밀번호 표시 토글 버튼 동작 수정
+**Exemplo 2:**
+Entrada: corrigir bug em que o botão de mostrar senha não funciona na página de login
+Saída: fix(login): corrige o funcionamento do botão de alternar exibição da senha
 ```
 
-<a id="5-progressive-disclosure-패턴"></a>
+<a id="5-padrão-progressive-disclosure"></a>
 
-## 5. 필요한 정보만 단계적으로 불러오는 방법(Progressive Disclosure)
+## 5. Como carregar por etapas só a informação necessária (Progressive Disclosure)
 
-### 방식 1: 업무 분야별로 파일을 나눈다
+### Forma 1: dividir os arquivos por área de negócio
 
 ```
 bigquery-skill/
-├── SKILL.md (개요 + 업무 분야 선택 지침)
+├── SKILL.md (visão geral + instrução para escolher a área de negócio)
 └── references/
-    ├── finance.md (매출, 청구 지표)
-    ├── sales.md (영업 기회, 파이프라인)
-    └── product.md (API 사용량, 기능)
+    ├── finance.md (receita, métricas de faturamento)
+    ├── sales.md (oportunidades de venda, pipeline)
+    └── product.md (uso da API, funcionalidades)
 ```
 
-사용자가 매출을 물으면 `finance.md`만 불러온다.
+Quando o usuário pergunta sobre receita, carrega-se só `finance.md`.
 
-### 방식 2: 필요한 경우에만 상세 지침을 읽는다
+### Forma 2: ler a instrução detalhada só quando necessário
 
 ```markdown
-## 문서 편집
-간단한 편집은 XML을 직접 수정한다.
-**변경 내용 추적이 필요하면** [REDLINING.md](references/redlining.md)를 참고한다.
+## Edição de documentos
+Edições simples são feitas alterando o XML diretamente.
+**Se for preciso rastrear alterações**, consulte [REDLINING.md](references/redlining.md).
 ```
 
-### 방식 3: 큰 참고 자료에는 목차를 넣는다
+### Forma 3: colocar sumário em material de referência grande
 
-300줄이 넘는 참고 자료에는 파일 위쪽에 목차를 넣는다.
+Em material de referência com mais de 300 linhas, coloque um sumário no topo do arquivo.
 
-<a id="6-스크립트-번들링-판단-기준"></a>
+<a id="6-critério-para-empacotar-scripts"></a>
 
-## 6. 스크립트를 묶어 둘지 판단하는 기준
+## 6. Critério para decidir se scripts devem ser empacotados
 
-테스트를 실행한 에이전트의 작업 기록을 살펴본다. 아래와 같은 일이 반복되면 스크립트나 절차를 스킬에 포함한다.
+Examine o registro de trabalho dos agentes que executaram os testes. Se acontecerem repetidamente coisas como as abaixo, inclua o script ou o procedimento no skill.
 
-| 반복되는 일 | 조치 |
+| O que se repete | Ação |
 |------------|------|
-| 테스트 세 건 모두에서 같은 보조 스크립트를 만든다. | 스크립트를 `scripts/`에 넣는다. |
-| 매번 같은 `pip install` 또는 `npm install` 명령을 실행한다. | 스킬에 의존성 설치 단계를 적는다. |
-| 매번 같은 여러 단계의 처리 절차를 따른다. | 스킬 본문에 표준 절차를 적는다. |
-| 비슷한 오류를 겪은 뒤 매번 같은 방법으로 우회한다. | 스킬에 알려진 문제와 해결 방법을 적는다. |
+| Nos três testes é criado o mesmo script auxiliar. | Coloque o script em `scripts/`. |
+| Toda vez é executado o mesmo comando `pip install` ou `npm install`. | Escreva no skill uma etapa de instalação de dependências. |
+| Toda vez é seguido o mesmo procedimento de processamento em várias etapas. | Escreva no corpo do skill o procedimento padrão. |
+| Depois de passar por erros parecidos, toda vez se contorna do mesmo jeito. | Escreva no skill os problemas conhecidos e a solução. |
 
-스킬에 포함한 스크립트는 반드시 직접 실행해 검증한다.
+Scripts incluídos no skill devem obrigatoriamente ser executados e verificados por você mesmo.
 
-## 7. 데이터 스키마 표준
+## 7. Padrão de schemas de dados
 
-스킬 사이에서 데이터를 일관되게 주고받을 수 있도록 아래 표준 스키마를 사용한다. 하네스로 만든 스킬을 테스트하고 평가할 때도 같은 스키마를 쓸 수 있다.
+Use os schemas-padrão abaixo para que os dados possam ser trocados de forma consistente entre skills. Os mesmos schemas também podem ser usados ao testar e avaliar os skills criados pelo harness.
 
 ### `eval_metadata.json`
 
@@ -183,10 +183,10 @@ bigquery-skill/
 {
   "eval_id": 0,
   "eval_name": "descriptive-name-here",
-  "prompt": "사용자의 작업 프롬프트",
+  "prompt": "Prompt de tarefa do usuário",
   "assertions": [
-    "산출물에 X가 포함되어 있다",
-    "Y 형식으로 파일이 생성되었다"
+    "O artefato contém X",
+    "O arquivo foi gerado no formato Y"
   ]
 }
 ```
@@ -197,16 +197,16 @@ bigquery-skill/
 {
   "expectations": [
     {
-      "text": "산출물에 '서울'이 포함되어 있다",
+      "text": "O artefato contém 'Seul'",
       "passed": true,
-      "evidence": "세 번째 단계에서 '서울 지역 데이터 추출'을 확인했다"
+      "evidence": "Na terceira etapa foi confirmada a 'extração de dados da região de Seul'"
     }
   ],
   "summary": { "passed": 1, "failed": 0, "total": 1, "pass_rate": 1.0 }
 }
 ```
 
-**필드명 주의:** `text`, `passed`, `evidence`를 정확히 사용한다. `name`/`met`/`details`처럼 다른 이름으로 바꾸지 않는다.
+**Atenção aos nomes de campo:** use exatamente `text`, `passed` e `evidence`. Não troque por outros nomes, como `name`/`met`/`details`.
 
 ### `timing.json`
 
@@ -218,42 +218,42 @@ bigquery-skill/
 }
 ```
 
-서브에이전트의 완료 알림이 오면 `total_tokens`와 `duration_ms`를 곧바로 저장한다. 두 값은 알림을 받는 시점에만 확인할 수 있으며 나중에는 복구할 수 없다.
+Quando chegar a notificação de conclusão do subagente, salve imediatamente `total_tokens` e `duration_ms`. Os dois valores só podem ser vistos no momento em que se recebe a notificação e não podem ser recuperados depois.
 
-<a id="8-스킬에-포함하지-않을-것"></a>
+<a id="8-o-que-não-incluir-no-skill"></a>
 
-## 8. 스킬에 넣지 않을 내용
+## 8. O que não colocar no skill
 
-- `README.md`, `CHANGELOG.md`, `INSTALLATION_GUIDE.md` 같은 부가 문서
-- 스킬을 만드는 과정에서만 필요한 정보(테스트 결과, 반복 수정 이력)
-- 사용자를 위한 설명서(스킬은 AI 에이전트가 따르는 지시서다)
-- Claude가 이미 아는 일반적인 지식
-- v1에서만 쓰던 항목(`TeamCreate`/`TeamDelete`, 실험용 플래그, 모든 에이전트에 일괄 지정하는 `model`)
+- Documentos acessórios como `README.md`, `CHANGELOG.md`, `INSTALLATION_GUIDE.md`
+- Informação necessária só durante a criação do skill (resultados de teste, histórico de correções iterativas)
+- Manual voltado ao usuário (o skill é um conjunto de instruções seguido por um agente de IA)
+- Conhecimento geral que o Claude já tem
+- Itens que só eram usados na v1 (`TeamCreate`/`TeamDelete`, flags experimentais, `model` atribuído em bloco a todos os agentes)
 
-## 9. 스킬 재사용 설계
+## 9. Design de reutilização de skills
 
-새 스킬을 만들기 전에 `.claude/skills/`의 기존 스킬과 기능을 비교한다. 하네스를 여러 번 구축하거나 확장하면 기능이 같은 스킬이 이름만 달리해 쌓일 수 있다.
+Antes de criar um skill novo, compare suas funções com as dos skills existentes em `.claude/skills/`. Quando o harness é construído ou ampliado várias vezes, skills com a mesma função podem se acumular só com nomes diferentes.
 
-| 기존 스킬과의 관계 | 조치 |
+| Relação com o skill existente | Ação |
 |------|------|
-| 기존 스킬이 새 기능을 모두 포함한다 | 새로 만들지 않고 기존 스킬을 에이전트에 연결한다. |
-| 일부만 겹치고, 기존 스킬을 일반화하면 새 기능까지 맡을 수 있다 | 기존 스킬을 일반화해 확장한다. |
-| 일부 겹치지만 도메인을 의도적으로 특화했다 | 별도 스킬로 새로 만든다. |
-| 기능 범위가 전혀 다르다 | 새로 만든다. |
+| O skill existente já cobre toda a função nova | Não crie outro; ligue o skill existente ao agente. |
+| Sobrepõe-se só em parte, e generalizando o skill existente ele assume também a função nova | Generalize e amplie o skill existente. |
+| Sobrepõe-se em parte, mas o domínio foi especializado de propósito | Crie um skill separado. |
+| O escopo funcional é completamente diferente | Crie um novo. |
 
-**원칙:** 한 스킬이 한 가지 역할에 집중할수록 다시 쓰기 쉽고 중복이 줄어든다. 역할이 두 가지 이상이면 나눌 수 있는지 먼저 검토한다.
+**Princípio:** quanto mais um skill se concentra em um único papel, mais fácil é reutilizá-lo e menos duplicação há. Se ele tem dois ou mais papéis, avalie primeiro se dá para dividi-lo.
 
-### 어디까지 일반화할지
+### Até onde generalizar
 
-일반화는 끝없이 할 수 있으므로 스킬이 맡기로 한 책임 범위에서 멈춘다. 의도한 도메인 특화는 남기고, 우연히 붙은 종속만 걷어낸다.
+A generalização pode ir indefinidamente, então pare no escopo de responsabilidade que o skill se propôs a assumir. Mantenha a especialização de domínio intencional e retire só as dependências que se agregaram por acaso.
 
-예를 들어 "핀테크 리스크 평가 PDF" 스킬을 일반화한다면 다음과 같다.
+Por exemplo, ao generalizar um skill de "PDF de avaliação de risco de fintech", fica assim.
 
-| 걷어낸 종속 | 결과 |
+| Dependência retirada | Resultado |
 |------|------|
-| 핀테크 | "평가 결과 PDF". 책임 범위가 평가 보고서라면 여기서 멈춘다. |
-| 평가 | "PDF 서식 작성". 같은 기능의 스킬이 이미 있으면 새로 만들지 않고 그 스킬을 쓴다. |
+| Fintech | "PDF de resultado de avaliação". Se o escopo de responsabilidade é o relatório de avaliação, pare aqui. |
+| Avaliação | "Preenchimento de formulário em PDF". Se já existe um skill com a mesma função, não crie outro; use aquele skill. |
 
-책임 범위를 처음부터 "핀테크 리스크 평가"로 정했다면 일반화하지 않고 별도 스킬로 둔다.
+Se o escopo de responsabilidade foi definido desde o início como "avaliação de risco de fintech", não generalize; mantenha-o como skill separado.
 
-기존 스킬을 확장하면 그 스킬을 쓰는 에이전트의 동작도 바뀔 수 있다. 확장하기 전에 어느 에이전트가 이 스킬을 쓰는지 확인하고, 넓어진 사용 범위를 `description`에 반영한다.
+Ampliar um skill existente pode mudar também o comportamento dos agentes que o usam. Antes de ampliar, verifique quais agentes usam esse skill e reflita na `description` o escopo de uso ampliado.
