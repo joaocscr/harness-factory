@@ -38,7 +38,7 @@ Siga `workshop/00-intake.md`, em levas relaxadas de 1–3 perguntas, quantas for
 
 ### 2. Módulos 1–7, nesta ordem
 
-Cada arquivo do workshop tem quatro partes: **Core Idea** (apresente com suas palavras, no vocabulário do domínio), **Questions For You** (faça em levas de 1–3), **What Gets Built** (os artefatos) e **Notes For Running This** (armadilhas). Construa os artefatos **com** a pessoa, a partir das respostas dela — nunca antes, nunca sem perguntar. Módulo ✅ no `CURRICULUM.md` só quando o artefato existe. Ao fim de cada módulo, pergunte se segue ou pausa (workshops atravessam sessões; é normal).
+Cada arquivo do workshop tem quatro partes: **Ideia central** (apresente com suas palavras, no vocabulário do domínio), **Perguntas para a pessoa** (faça em levas de 1–3), **O que é construído** (os artefatos) e **Notas de condução** (armadilhas). Construa os artefatos **com** a pessoa, a partir das respostas dela — nunca antes, nunca sem perguntar. Módulo ✅ no `CURRICULUM.md` só quando o artefato existe. Ao fim de cada módulo, pergunte se segue ou pausa (workshops atravessam sessões; é normal).
 
 | Módulo | Arquivo do workshop | Motor que você carrega antes de decidir |
 |---|---|---|
@@ -58,6 +58,13 @@ Notas que corrigem o texto dos módulos (em conflito motor×workshop×templates,
 
 - **Módulo 6 — evals × aprovação humana:** uma eval automática roda sem ninguém para aprovar. Toda eval de pipeline roda em **modo eval**: a aprovação humana é registrada como "simulada — modo teste" no relatório da eval (nunca silenciosamente pulada), ou o trajeto da eval termina na etapa anterior à aprovação. O eval-set gerado declara qual das duas.
 - **Módulo 7 — registro do harness:** ao fechar o módulo 7, grave no `CLAUDE.md` do projeto (abaixo da linha `@AGENTS.md`) a seção de registro do harness: objetivo em uma linha, condição de acionamento e a tabela de histórico de mudanças (data, mudança, alvo, motivo). É isso que o `validar` (item 11) confere e o `evoluir` (Fase 4) atualiza.
+
+**Notas que corrigem o roteiro do modo direto** (`motor/modo-direto.md` é tradução fiel de um roteiro com convenções próprias; em conflito, **vale este SKILL.md** — estas notas são o mapa, validado em teste real de 16/10/2026):
+
+- **Caminhos:** onde o roteiro mandar criar skills com `scripts/` ou `references/` dentro de `.claude/skills/<nome>/`, aplique o layout §3 — o conhecimento vai para `metodo/skills/<nome>.md`, código para `metodo/checagens/`, referências para o próprio documento de método; em `.claude/skills/` fica só o wrapper. O wrapper do orquestrador é a exceção que pode deixar de ser "fino": nomes de ferramentas do Claude Code (Agent, Workflow, SendMessage) são amarração e moram nele, nunca em `metodo/`.
+- **Invariantes sem etapa no roteiro:** glossário nasce na etapa 4 (junto com as skills); `comece-aqui` e as regras de negação de gabaritos na etapa 5 (integração); evals mínimas e gabaritos na etapa 6; havendo regra da casa a proteger, invoque o skill `guardas` na etapa 5. Os invariantes 1–6 do §3 valem no modo direto por inteiro.
+- **Modo de execução × aprovação humana:** pipeline com aprovação humana ou confirmação entre etapas → subagentes em sequência (ou agentes persistentes), nunca Workflow — a regra 1 da etapa 2-1 só vale quando não há parada humana no meio.
+- **Âncoras:** o modo direto também cria o registro do harness no `CLAUDE.md` (como o módulo 7) e, se for interrompido, deixa nele o ponto de parada — é a âncora de retomada; commits por etapa concluída (o 0.6 vale com "etapa" no lugar de "módulo").
 
 Regras do motor que valem em todos os módulos: antes de criar agente ou skill novos, confira sobreposição com os existentes (estenda em vez de duplicar); modelo de cada agente escolhido por complexidade/duração/autonomia da tarefa — **nunca** o mesmo modelo top para todos, **nunca** `model:` fixado sem justificativa escrita no próprio arquivo (exigência de agnosticismo: o método não pode depender de um modelo).
 
@@ -87,7 +94,7 @@ Todo harness gerado separa **método** (portável, versionado, agnóstico de inf
   CLAUDE.md / AGENTS.md        ← regras da casa (módulo 1)
 ```
 
-Onde os arquivos do workshop mencionarem caminhos antigos (`harness/...`), use este layout: `harness/hooks→metodo/checagens/hooks`, `harness/evals→metodo/evals`, `harness/handoffs→_trabalho/handoffs`, `harness/observability→_trabalho/logs` (**somente os logs e métricas**: script de registro é código e vive em `metodo/checagens/hooks/`). Onde o motor mencionar `_workspace/`, leia `_trabalho/` — mesmo papel (artefatos de execução), nome deste layout. Os templates `.js` do workshop (`run-evals.js`, `log-event.js`) são **referência de comportamento, não cópia**: gere equivalentes em Python (runner em `metodo/evals/`, registrador em `metodo/checagens/hooks/`), preservando o formato de relatório e o marcador `VERDICT: PASS/FAIL` em inglês (o runner o procura literal).
+Onde os arquivos do workshop mencionarem caminhos antigos (`harness/...`), use este layout: `harness/hooks→metodo/checagens/hooks`, `harness/evals→metodo/evals`, `harness/handoffs→_trabalho/handoffs`, `harness/observability→_trabalho/logs` (**somente os logs e métricas**: script de registro é código e vive em `metodo/checagens/hooks/`). Onde o motor mencionar `_workspace/`, leia `_trabalho/` — mesmo papel (artefatos de execução), nome deste layout. Os templates `.js` do workshop (`run-evals.js`, `log-event.js`) são **referência de comportamento, não cópia**: gere equivalentes em Python (runner em `metodo/evals/`, registrador em `metodo/checagens/hooks/`), preservando o formato de relatório e o marcador `VERDICT: PASS/FAIL` em inglês (o runner o procura literal). Onde o motor congelar/conferir artefatos com `shasum`/`md5sum` (bash puro), gere Python com `hashlib`. E o "como" de cada papel mora em `metodo/skills/` — o arquivo em `.claude/agents/` é amarração, reescrevível a partir do método ao trocar de executor.
 
 Invariantes de todo harness gerado (cheque antes de dar o módulo por pronto):
 
@@ -104,4 +111,4 @@ Claude Code não recarrega tudo no meio da sessão. Avise no fim do módulo, em 
 
 ## Artefato pronto ≠ discutido
 
-Um módulo só está ✅ quando o arquivo existe no lugar certo. Antes de marcar, releia o What Gets Built do módulo **e o que o layout (§3) atribui a esse módulo** (ex.: GLOSSARIO no 1, comece-aqui no 4) e confira item a item.
+Um módulo só está ✅ quando o arquivo existe no lugar certo. Antes de marcar, releia o "O que é construído" do módulo **e o que o layout (§3) atribui a esse módulo** (ex.: GLOSSARIO no 1, comece-aqui no 4) e confira item a item.

@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.2.0 — 2026-10-16 — finalização
+
+Língua padronizada, plano de ação da auditoria de 16/10 aplicado por inteiro, dois testes novos e **instalação real realizada**. Revisão independente pré-tag: "pronto com correções" — correções aplicadas neste release.
+
+### Língua: tudo em português
+- Motor (9 arquivos) traduzido fielmente do coreano; `motor/modo-direto.md` criado como tradução integral do SKILL original (roteiro do modo direto). Workshop (9 módulos + template de CURRICULUM + comentários dos `.js`) traduzido do inglês. Originais preservados nos `_original-*.md` (os dois SKILL) e no histórico git (todo o resto). Fidelidade verificada por amostragem independente: FIEL, 0 divergências materiais.
+
+### Plano de ação da auditoria (5 pontos — todos fechados)
+1. Passe de correções: módulo 06 → porte Python do executor; "hooks valem na hora" corrigido contra a doc atual (só o teste da guarda confirma); `${CLAUDE_PROJECT_DIR}` no exemplo do guardas; ATTRIBUTION no estado real.
+2. Autoteste do `validar` registrado (`docs/testes/2026-10-16-autoteste-validar.md`) — sem falso "aprovado" em alvo formato plugin.
+3. Deslizes de jargão → regra de **termos-armadilha** no `construir` (com as duas exceções declaradas: `/comando` e login).
+4. **Instalação real via CLI (16/10/2026): `claude plugin marketplace add joaocscr/harness-factory` → "Successfully added marketplace"; `claude plugin install harness-factory@harness-factory` → "Successfully installed plugin (scope: user)"; `claude plugin list` → enabled; os 4 skills presentes e visíveis em sessão. Critério §9-1 fechado por inteiro.** Após novo release, atualizar com `claude plugin update harness-factory`.
+5. Modo direto testado de ponta a ponta com persona técnica (`docs/testes/2026-10-16-teste-modo-direto.md`) — PASSOU, invariantes 9/9.
+
+### Correções da revisão final pré-tag
+- **Notas que corrigem o roteiro do modo direto** no `construir` (caminhos, invariante→etapa, Workflow×aprovação humana, âncora de retomada) — fecha os conflitos 1–3 e 8 do teste.
+- Títulos dos módulos citados em português no `construir` (referência quebrada pós-tradução).
+- §3: `shasum`→`hashlib`; o "como" dos papéis mora em `metodo/skills/` (amarração reescrevível).
+
+### Diferidos (menores, registrados)
+Clarificações de uma linha (QA×revisor, CLAUDE.md×AGENTS.md canonizado, tom pós-aceite, commit por etapa, `_trabalho/<estudo>/`); qa-agent-guide web-cêntrico; baseline 6-3 e acionamento 6-4 por execução; reteste do modo direto com tipos de agente carregados pelo runtime (A17); regra `autocrlf`×sha256 como invariante da fábrica; precisão da frase "originais nos `_original-*`" (só os dois SKILL; o resto vive no histórico git); aviso sobre o frontmatter do `modo-direto.md` se um dia for movido.
+
 ## v0.1.2 — 2026-10-15
 
 Fecha os 10 minors diferidos do fix pass e as duas primeiras lacunas de teste. Mapa item a item em `docs/testes/2026-10-15-fix-pass.md`.
