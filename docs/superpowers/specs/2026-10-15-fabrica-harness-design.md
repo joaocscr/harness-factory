@@ -6,7 +6,7 @@
 
 Construir um **plugin próprio de Claude Code que constrói harnesses de agentes** — "fábrica de harness" — vivendo em um repositório GitHub do João. A motivação central é **independência**: todo o código vendorizado (copiado para dentro) no repositório próprio, de modo que nenhum terceiro possa desligar, quebrar ou descontinuar a ferramenta. A fábrica reaproveita ao máximo trabalho publicado de qualidade, em vez de reinventar.
 
-O fio que une os casos de uso: *a equity-research-fleet é o protótipo de um método; a fábrica é o laboratório que industrializa métodos; a Annalisa é o produto que um dia os executa.*
+O fio que une os casos de uso: *a equity-research-fleet é o protótipo de um método; a fábrica é o laboratório que industrializa métodos; uma plataforma futura do dono é o produto que um dia os executa.*
 
 **Papel da fleet — importante:** a fleet é caso de uso e fonte de conhecimento de domínio (o método Múltiplos Justos, os papéis de análise), **não modelo de arquitetura**. Ela foi construída no bom senso por quem não conhecia engenharia de agentes; funciona, mas sua estrutura técnica não serve de base para nada neste projeto. A arquitetura de referência da fábrica vem exclusivamente das fontes absorvidas (§6.1–6.3). Ao operar sobre a fleet, a fábrica aplica os padrões *dela*, inclusive propondo reestruturações onde a fleet destoar deles.
 
@@ -14,13 +14,13 @@ O fio que une os casos de uso: *a equity-research-fleet é o protótipo de um m�
 
 1. **Construir harnesses novos** para qualquer domínio intelectual, a partir de uma conversa com um usuário **leigo em tecnologia** (analistas, bankers, gestores — gente que não sabe o que é API, não distingue tipos de arquivo e nunca abriu um terminal).
 2. **Evoluir harnesses existentes** (caso imediato: a equity-research-fleet) a partir do uso real.
-3. **Gerar métodos portáveis**: o conhecimento de domínio do harness gerado (skills, checagens, evals, glossário) vive em um pacote próprio, versionado, separado da infraestrutura Claude Code que o executa — exigência nº 2 da seção 12 do briefing da Annalisa.
+3. **Gerar métodos portáveis**: o conhecimento de domínio do harness gerado (skills, checagens, evals, glossário) vive em um pacote próprio, versionado, separado da infraestrutura Claude Code que o executa — exigência nº 2 da seção 12 desse briefing interno da plataforma-alvo.
 4. **Ser agnóstico de modelo de LLM no que gera**: o método gerado é markdown + código, cálculos sempre em código, evals executáveis contra qualquer modelo, nenhum agente com modelo fixado sem justificativa escrita.
-5. Servir aos três casos de uso declarados: (a) manter/evoluir a equity-research-fleet; (b) criar o harness de trabalho do João (acompanhar deals, montar apresentações e modelos financeiros, pesquisas e análises); (c) servir de construtor para o laboratório da Annalisa.
+5. Servir aos três casos de uso declarados: (a) manter/evoluir a equity-research-fleet; (b) criar o harness de trabalho do João (acompanhar deals, montar apresentações e modelos financeiros, pesquisas e análises); (c) servir de construtor para o laboratório de uma plataforma futura de análise de investimento (projeto interno).
 
 ## 3. Não-objetivos
 
-- **Não é a plataforma da Annalisa.** Gateway de modelos, BYOK, multi-tenant, trilha de auditoria imutável e execução fora do laptop são infraestrutura de software (etapas E5+ do roadmap da Annalisa), fora deste plugin. A fábrica apenas *não atrapalha*: gera o método no formato portável que a plataforma executará um dia.
+- **Não é a plataforma-alvo (projeto interno do dono).** Gateway de modelos, BYOK, multi-tenant, trilha de auditoria imutável e execução fora do laptop são infraestrutura de software (etapas E5+ do roadmap dessa plataforma), fora deste plugin. A fábrica apenas *não atrapalha*: gera o método no formato portável que a plataforma executará um dia.
 - **Não é um wrapper.** Não dependemos dos repositórios de origem em tempo de execução; atualizações futuras deles são puxadas manualmente, se e quando o João quiser.
 - Não cobre domínios de software/engenharia como foco (funciona, mas o público-alvo é trabalho intelectual não técnico).
 
@@ -28,7 +28,7 @@ O fio que une os casos de uso: *a equity-research-fleet é o protótipo de um m�
 
 - Um harness gerado que só funciona se o usuário entender código, terminal ou estrutura de arquivos.
 - Condução que despeja 10 perguntas de uma vez ou explica com jargão ("configure o MCP server no settings.json").
-- Métodos gerados presos ao Claude Code ou a um modelo específico, impossíveis de levar para a plataforma da Annalisa.
+- Métodos gerados presos ao Claude Code ou a um modelo específico, impossíveis de levar para a plataforma-alvo.
 - Cópia que viole licença das fontes.
 
 ## 5. Restrições
@@ -70,11 +70,11 @@ Todo harness gerado separa duas coisas:
   .claude/               ← amarração Claude Code (agents, settings, pipeline)
 ```
 
-O `.claude/` referencia o `metodo/`; nunca o contrário. Trocar de executor (Claude Code → Agent SDK → plataforma Annalisa) significa reescrever só a amarração.
+O `.claude/` referencia o `metodo/`; nunca o contrário. Trocar de executor (Claude Code → Agent SDK → plataforma-alvo) significa reescrever só a amarração.
 
 ### 6.5 Chamadas do construtor (decisões do Claude, abertas a veto)
 
-1. **Gabaritos fora do alcance dos agentes:** os gabaritos vivem em `metodo/evals/gabaritos/` e a fábrica gera regras de negação em `.claude/settings.json` que impedem os agentes de produção de lê-los; só o runner de evals (código) acessa. Num laptop isso é proteção por convenção + configuração, não segurança absoluta — suficiente para o laboratório; a plataforma da Annalisa resolve o resto.
+1. **Gabaritos fora do alcance dos agentes:** os gabaritos vivem em `metodo/evals/gabaritos/` e a fábrica gera regras de negação em `.claude/settings.json` que impedem os agentes de produção de lê-los; só o runner de evals (código) acessa. Num laptop isso é proteção por convenção + configuração, não segurança absoluta — suficiente para o laboratório; a plataforma-alvo resolve o resto.
 2. **Runtime do harness gerado:** o ambiente assumido é o aplicativo desktop do Claude (abrir uma pasta pela interface, sem terminal). Todo harness gerado inclui um skill de entrada ("comece aqui") que recebe o leigo, explica o que o harness faz na linguagem do domínio e o conduz; a configuração inicial é feita conversando com o Claude, nunca por comandos.
 3. **Linguagem dos cálculos:** Python como padrão das `checagens/` e `evals/` — padrão da indústria para cálculo numérico (e, por coincidência conveniente, o que a fleet já usa). O harness gerado verifica o ambiente na primeira execução e, se faltar algo, o próprio Claude instala conversando com a pessoa — o leigo nunca vê um comando.
 4. **`/evolve` v1 opera em harnesses no formato em que estão** (a fleet é um plugin, não segue §6.4). Migrar a fleet para o formato portável é tarefa separada, oferecida pela fábrica mas fora da v1.
@@ -85,9 +85,9 @@ Repositório **`joaocscr/harness-factory`, privado**, funcionando como marketpla
 
 A equity-research-fleet, alvo do critério de pronto nº 4, vive em `joaocscr/equity-research-fleet` (público, verificado em 15/10/2026).
 
-## 7. Requisitos herdados da Annalisa que a fábrica embute nos harnesses gerados
+## 7. Requisitos herdados da plataforma-alvo que a fábrica embute nos harnesses gerados
 
-Dos 10 da seção 12 do briefing, os 7 que pertencem ao laboratório: (1) trilho híbrido — etapas determinísticas e agênticas intercaladas, com etapas obrigatórias que não podem ser puladas; (2) método separado do construtor (§6.4); (3) evals como cidadãs de primeira classe, com gabaritos fora do alcance dos agentes; (4) revisor independente em contexto limpo; (5) ponto de aprovação humana explícito; (6) cálculo determinístico em código com schemas nas saídas; (7) glossário único. Gateway, multi-tenant e trilha imutável ficam para a plataforma (§3).
+Dos 10 da seção 12 desse briefing, os 7 que pertencem ao laboratório: (1) trilho híbrido — etapas determinísticas e agênticas intercaladas, com etapas obrigatórias que não podem ser puladas; (2) método separado do construtor (§6.4); (3) evals como cidadãs de primeira classe, com gabaritos fora do alcance dos agentes; (4) revisor independente em contexto limpo; (5) ponto de aprovação humana explícito; (6) cálculo determinístico em código com schemas nas saídas; (7) glossário único. Gateway, multi-tenant e trilha imutável ficam para a plataforma (§3).
 
 ## 8. O que fica para o construtor
 

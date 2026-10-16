@@ -19,4 +19,4 @@ Plugin de Claude Code que constrói e evolui harnesses de agentes para usuários
 
 ## Contexto de negócio (resumo)
 
-Casos de uso do dono: (1) evoluir a equity-research-fleet; (2) harness de trabalho (deals, apresentações, modelos financeiros); (3) laboratório do projeto Annalisa — plataforma de análise de investimento com método auditável; a fábrica serve ao laboratório (método, evals, golden set), nunca à plataforma (gateway, multi-tenant ficam fora).
+Casos de uso do dono: (1) evoluir a equity-research-fleet; (2) harness de trabalho (deals, apresentações, modelos financeiros); (3) laboratório de uma futura plataforma de análise de investimento com método auditável (projeto interno do dono); a fábrica serve ao laboratório (método, evals, golden set), nunca à plataforma (gateway, multi-tenant ficam fora).

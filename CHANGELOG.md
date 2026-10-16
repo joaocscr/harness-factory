@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-16 — repositório tornado público
+
+Visibilidade alterada de privado para público (decisão do dono). Antes do flip: varredura de segredos/dados pessoais (nada encontrado) e anonimização das menções a um projeto interno no design e no CLAUDE.md. Licenciamento já estava pronto para público desde a v0.1.0 (Apache-2.0 + ATTRIBUTION).
+
 ## v0.2.2 — 2026-10-16 — reteste com runtime real concluído
 
 Após renovação do login do CLI pelo dono, as 4 execuções headless reais dentro do harness gerado fecharam as últimas ressalvas (`docs/testes/2026-10-16-reteste-runtime.md`):

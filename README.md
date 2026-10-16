@@ -2,7 +2,7 @@
 
 Plugin de Claude Code que **constrói e evolui harnesses de agentes** conduzindo o usuário — inclusive quem nunca escreveu uma linha de código — de uma conversa sobre o seu trabalho até um time de agentes funcionando.
 
-Repositório **privado** de João Coutinho (joaocscr). Copyright © 2026 João Coutinho, licença Apache-2.0; incorpora trabalho de terceiros — ver [ATTRIBUTION.md](ATTRIBUTION.md).
+Repositório de João Coutinho (joaocscr), **público desde 16/10/2026**. Copyright © 2026 João Coutinho, licença Apache-2.0; incorpora trabalho de terceiros — ver [ATTRIBUTION.md](ATTRIBUTION.md).
 
 ## O que ele faz
 
