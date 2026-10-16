@@ -5,6 +5,8 @@ description: "Desenha o harness adequado ao projeto e cria os agentes especialis
 
 Tradução fiel de _original-harness-SKILL.md (revfactory/harness v2, Apache-2.0); o original permanece intocado ao lado.
 
+> **Atenção:** o frontmatter acima é herdado do original por fidelidade. Este arquivo vive em `motor/` e não é carregado como skill; se um dia for movido para uma pasta de skills, o gatilho colide com o `construir` — remova o frontmatter antes.
+
 # Harness v2 — design de times de agentes e skills
 
 Desenha o harness adequado ao projeto. Define o papel de cada agente e cria os skills que os agentes vão seguir ao trabalhar.

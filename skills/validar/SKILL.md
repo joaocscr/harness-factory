@@ -24,6 +24,7 @@ Antes de tudo, identifique o formato do alvo (método portável, plugin, projeto
 | 9 | Revisor independente | O pipeline tem um papel de revisão que roda em contexto limpo (não viu a produção) | "Quem produziu é quem confere — os mesmos pontos cegos, duas vezes." |
 | 10 | Cálculo em código | Números do método saem de scripts em `metodo/checagens/` com formato de saída definido; nenhuma skill manda o modelo 'calcular' | "Contas feitas de cabeça pela IA: uma hora erram, e não dá para auditar." |
 | 11 | Histórico de mudanças | `CLAUDE.md` do alvo registra o harness (condição de acionamento + tabela de mudanças) e bate com os arquivos reais | "O mapa não bate com o território — a próxima sessão vai se perder." |
+| 12 | Hashes sobrevivem a clones | Se o harness congela/verifica artefatos por hash (sha256), existe `.gitattributes` fixando o fim de linha dos artefatos de texto | "A conferência de integridade vai acusar violação falsa no computador de outra pessoa — o git muda o arquivo ao copiá-lo." |
 
 ## Relatório
 

@@ -29,7 +29,7 @@ Repositório **privado** de João Coutinho (joaocscr). Copyright © 2026 João C
 
 ## Mapa do repositório
 
-Todos os documentos do plugin estão em **português** (o motor foi traduzido do coreano e o workshop do inglês em 16/10/2026; os originais ficam nos arquivos `_original-*.md` e no histórico git).
+Todos os documentos do plugin estão em **português** (o motor foi traduzido do coreano e o workshop do inglês em 16/10/2026; os originais ficam no histórico git — e os dois SKILL de origem, intocados, nos arquivos `_original-*.md`).
 
 ```
 skills/construir/   skill principal (workshop + motor)

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.1 — 2026-10-16 — diferidos fechados
+
+Fecha todos os diferidos da v0.2.0 que não dependem do dono. Detalhes em `docs/testes/2026-10-16-reteste-runtime.md`.
+
+- **construir:** clarificações — QA executa × revisor lê/julga (e generalizar o guia de QA, que é web-cêntrico); regra canônica CLAUDE.md×AGENTS.md; tom pós-aceite do modo direto; `_trabalho/<caso>/` com múltiplos casos; precisão sobre onde vivem os originais. **Invariante 7 novo:** `.gitattributes` obrigatório no harness gerado — `autocrlf` quebra hashes de congelamento em clones (achado de teste real).
+- **validar:** item 12 espelho do invariante 7.
+- **motor/modo-direto.md:** aviso sobre o frontmatter herdado (colisão de gatilho se o arquivo for movido).
+- **Reteste com runtime real:** parcial — prontidão estática ✅ (agentes/wrappers carregáveis, plugin rodando como `harness-factory:*` em sessão); a execução headless segue bloqueada por `401 OAuth` — **única pendência, do dono: `claude /login`**, comandos de reteste prontos no registro.
+
 ## v0.2.0 — 2026-10-16 — finalização
 
 Língua padronizada, plano de ação da auditoria de 16/10 aplicado por inteiro, dois testes novos e **instalação real realizada**. Revisão independente pré-tag: "pronto com correções" — correções aplicadas neste release.

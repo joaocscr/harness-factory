@@ -8,7 +8,7 @@ description: "Constrói um harness de agentes completo para o domínio de trabal
 Este skill constrói o harness **da pessoa**, para o domínio **dela**, em duas camadas que trabalham juntas:
 
 - **Workshop** (`workshop/`): a condução humana — intake, módulos 1–7, progresso rastreado. É o que a pessoa vê.
-- **Motor** (`motor/`): a engenharia de agentes — padrões de time, modos de execução, geração de skills, modelos. É o que você (Claude) consulta para decidir bem. **Os arquivos do motor são leitura interna sua; não os cite ao usuário como documentos** (traduza as ideias para o vocabulário do domínio). Estão em português (traduzidos do coreano em 16/10/2026; original em `_original-harness-SKILL.md` e no histórico git). Tudo o que for gerado a partir deles sai na língua da pessoa.
+- **Motor** (`motor/`): a engenharia de agentes — padrões de time, modos de execução, geração de skills, modelos. É o que você (Claude) consulta para decidir bem. **Os arquivos do motor são leitura interna sua; não os cite ao usuário como documentos** (traduza as ideias para o vocabulário do domínio). Estão em português (traduzidos do coreano em 16/10/2026; os originais dos 9 arquivos vivem no histórico git, e o SKILL de origem, intocado, em `_original-harness-SKILL.md`). Tudo o que for gerado a partir deles sai na língua da pessoa.
 
 ## Papel e tom (inegociável)
 
@@ -52,10 +52,11 @@ Cada arquivo do workshop tem quatro partes: **Ideia central** (apresente com sua
 
 Módulo 8 (dashboard) é bônus: mencione ao fim do 7, só se houver ≥5 logs reais.
 
-`motor/qa-agent-guide.md` não tem módulo fixo: carregue-o quando o time desenhado no módulo 2 ou 4 incluir um papel de verificação/QA (e ele integra o roteiro do modo direto).
+`motor/qa-agent-guide.md` não tem módulo fixo: carregue-o quando o time desenhado no módulo 2 ou 4 incluir um papel de verificação/QA (e ele integra o roteiro do modo direto). Os exemplos dele são de aplicações web — generalize para o domínio da pessoa. E não confunda papéis: o **QA executa verificações** (precisa de ferramentas de execução); o **revisor independente** do invariante 2 lê e julga — nunca tem Edit/Write, mesmo onde o guia sugerir "todas as ferramentas".
 
 Notas que corrigem o texto dos módulos (em conflito motor×workshop×templates, **vale este SKILL.md**):
 
+- **CLAUDE.md × AGENTS.md (regra canônica):** regras da casa vivem no `AGENTS.md`; o `CLAUDE.md` do harness tem a linha `@AGENTS.md` e, abaixo, o registro do harness (módulo 7). Onde o motor mandar escrever regras direto no `CLAUDE.md`, leia `AGENTS.md`.
 - **Módulo 6 — evals × aprovação humana:** uma eval automática roda sem ninguém para aprovar. Toda eval de pipeline roda em **modo eval**: a aprovação humana é registrada como "simulada — modo teste" no relatório da eval (nunca silenciosamente pulada), ou o trajeto da eval termina na etapa anterior à aprovação. O eval-set gerado declara qual das duas.
 - **Módulo 7 — registro do harness:** ao fechar o módulo 7, grave no `CLAUDE.md` do projeto (abaixo da linha `@AGENTS.md`) a seção de registro do harness: objetivo em uma linha, condição de acionamento e a tabela de histórico de mudanças (data, mudança, alvo, motivo). É isso que o `validar` (item 11) confere e o `evoluir` (Fase 4) atualiza.
 
@@ -65,6 +66,7 @@ Notas que corrigem o texto dos módulos (em conflito motor×workshop×templates,
 - **Invariantes sem etapa no roteiro:** glossário nasce na etapa 4 (junto com as skills); `comece-aqui` e as regras de negação de gabaritos na etapa 5 (integração); evals mínimas e gabaritos na etapa 6; havendo regra da casa a proteger, invoque o skill `guardas` na etapa 5. Os invariantes 1–6 do §3 valem no modo direto por inteiro.
 - **Modo de execução × aprovação humana:** pipeline com aprovação humana ou confirmação entre etapas → subagentes em sequência (ou agentes persistentes), nunca Workflow — a regra 1 da etapa 2-1 só vale quando não há parada humana no meio.
 - **Âncoras:** o modo direto também cria o registro do harness no `CLAUDE.md` (como o módulo 7) e, se for interrompido, deixa nele o ponto de parada — é a âncora de retomada; commits por etapa concluída (o 0.6 vale com "etapa" no lugar de "módulo").
+- **Tom pós-aceite:** aceito o modo direto, caem as traduções obrigatórias de jargão (a pessoa é técnica); continuam valendo as levas de 1–3 perguntas, construir **com** a pessoa e a aprovação humana explícita.
 
 Regras do motor que valem em todos os módulos: antes de criar agente ou skill novos, confira sobreposição com os existentes (estenda em vez de duplicar); modelo de cada agente escolhido por complexidade/duração/autonomia da tarefa — **nunca** o mesmo modelo top para todos, **nunca** `model:` fixado sem justificativa escrita no próprio arquivo (exigência de agnosticismo: o método não pode depender de um modelo).
 
@@ -88,7 +90,8 @@ Todo harness gerado separa **método** (portável, versionado, agnóstico de inf
                                  pedir e conduz o primeiro uso
     settings.json              ← hooks + SEMPRE as regras de negação de metodo/evals/gabaritos/
                                  (negar Read E comandos de shell: Bash(*gabaritos*) — senão um cat contorna)
-  _trabalho/                   ← artefatos de execução (handoffs, logs); não é método
+  _trabalho/                   ← artefatos de execução (handoffs, logs); não é método;
+                                 com mais de um caso/estudo, organize por _trabalho/<caso>/
   casos/<caso>/                ← quando o domínio trabalha por casos: insumos em documentos/ e o
                                  produto final na raiz do caso (ex.: parecer-de-dd.md); não é método
   CLAUDE.md / AGENTS.md        ← regras da casa (módulo 1)
@@ -104,6 +107,7 @@ Invariantes de todo harness gerado (cheque antes de dar o módulo por pronto):
 4. Cálculo **nunca** feito pelo modelo: número sai de script Python em `metodo/checagens/`, com formato de saída definido (explique como "a planilha confere, o analista interpreta").
 5. Scripts gerados em Python ou PowerShell — nunca bash puro sem alternativa Windows. Na primeira execução o harness confere o ambiente e, se faltar algo (ex.: Python), **você instala conversando com a pessoa**; ela nunca vê um comando.
 6. `GLOSSARIO.md` existe e as skills usam as definições dele.
+7. O harness gerado inclui `.gitattributes` fixando o fim de linha dos artefatos de texto e marcando binários: o `autocrlf` do git altera o conteúdo num clone e **quebra hashes de congelamento (sha256)** — a verificação de integridade falharia em outra máquina (achado de teste real, 16/10/2026).
 
 ### 4. Quando cada coisa passa a valer
 
